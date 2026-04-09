@@ -14,7 +14,7 @@ public class Usuarios {
     private String usuario;
     private String nombre;
     private String clave;
-    private Boolean activo;
+    private Boolean activo = true;
 
     @ManyToOne                          // Muchos usuarios pueden tener un solo rol
     @JoinColumn(name = "rol_id")        // Columna FK que apunta a la tabla 'rol'
