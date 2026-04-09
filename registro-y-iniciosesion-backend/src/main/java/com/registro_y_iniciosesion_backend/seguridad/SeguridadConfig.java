@@ -3,6 +3,8 @@ package com.registro_y_iniciosesion_backend.seguridad;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -21,5 +23,14 @@ public class SeguridadConfig {
 
         // Construye y devuelve la configuración de seguridad.
         return http.build();
+    }
+
+
+    //CODIFICACIÓN DE CLAVES
+    // Este metodo crea un PasswordEncoder usando BCrypt.
+    // lo que evita almacenar contraseñas en texto plano.
+    @Bean
+    public PasswordEncoder codificarClave() {
+        return new BCryptPasswordEncoder();
     }
 }

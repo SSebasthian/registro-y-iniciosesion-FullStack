@@ -43,6 +43,13 @@ public class UsuariosController {
         return usuariosService.buscarPorUsuario(usuario);
     }
 
+
+    //REGISTRAR USUARIO (POST /usuarios/registrar)
+    @PostMapping("/registrar")
+    public Usuarios registrarUsuario(@RequestBody Usuarios usuario) {
+        return usuariosService.crear(usuario);
+    }
+
 }
 
 
