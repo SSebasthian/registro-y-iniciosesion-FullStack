@@ -17,6 +17,10 @@ public class SeguridadConfig {
                 // Deshabilitamos CSRF para Postman
                 .csrf(csrf -> csrf.disable())
 
+                //Permite que el backend acepte peticiones desde otro origen (Angular corriendo en localhost:4200).
+                //Si no activas CORS, Angular no podrá conectar con tu backend.
+                .cors(cors ->{})
+
                 // Permite que cualquier petición hacia cualquier endpoint sea accesible
                 // sin autenticación. Es decir, todo el backend queda publico.
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
