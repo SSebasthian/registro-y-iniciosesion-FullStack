@@ -11,6 +11,7 @@ public class Usuarios {
     @GeneratedValue(strategy = GenerationType.IDENTITY)     // MySQL generará el ID automáticamente (auto-increment)
     private Long id;
 
+    @Column(unique = true, nullable = false)              // Usuario Unico
     private String usuario;
     private String nombre;
     private String clave;

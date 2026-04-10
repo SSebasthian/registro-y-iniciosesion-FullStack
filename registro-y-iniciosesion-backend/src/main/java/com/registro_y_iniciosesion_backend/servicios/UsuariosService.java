@@ -2,7 +2,11 @@ package com.registro_y_iniciosesion_backend.servicios;
 
 
 import com.registro_y_iniciosesion_backend.autenticacion.InicioSesionRespuesta;
+import com.registro_y_iniciosesion_backend.autenticacion.RegistroRespuesta;
+import com.registro_y_iniciosesion_backend.autenticacion.RegistroSolicitud;
+import com.registro_y_iniciosesion_backend.entidades.Rol;
 import com.registro_y_iniciosesion_backend.entidades.Usuarios;
+import com.registro_y_iniciosesion_backend.repositorios.RolRepository;
 import com.registro_y_iniciosesion_backend.repositorios.UsuariosRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,11 +17,13 @@ public class UsuariosService {
 
     private final UsuariosRepository usuariosRepository;
     private final PasswordEncoder codificarClave;
+    private final RolRepository rolRepository;
 
     // Inyección del repositorio mediante el constructor
-    public UsuariosService(UsuariosRepository usuariosRepository,  PasswordEncoder codificarClave) {
+    public UsuariosService(UsuariosRepository usuariosRepository, PasswordEncoder codificarClave, RolRepository rolRepository) {
         this.usuariosRepository = usuariosRepository;
         this.codificarClave = codificarClave;
+        this.rolRepository = rolRepository;
     }
 
     // Crear o guardar un usuario nuevo
@@ -47,6 +53,43 @@ public class UsuariosService {
     }
 
 
+    ///////////////////////////////////////////
+    ////// METODO PARA REGISTRAR USUARIO///////
+    ///////////////////////////////////////////
+    public RegistroRespuesta registrar(RegistroSolicitud datos) {
+
+        // 1. Verificar que el usuario NO exista antes de registrar
+        Usuarios existente = usuariosRepository.findByUsuario(datos.getUsuario());
+        if (existente != null) {
+            return new RegistroRespuesta("El Usuario Ya Existe",null, null, null);
+        }
+
+        // 2. Asignar por defecto el rol NORMAL (id = 2)
+        Rol rolNormal = rolRepository.findById(2L)
+                .orElse(null);
+        if (rolNormal == null) {
+            return new RegistroRespuesta("El Rol NORMAL (id=2) No Existe", null, null, null);
+        }
+
+        // 3. Crear usuario nuevo
+        Usuarios nuevo = new Usuarios();
+        nuevo.setUsuario(datos.getUsuario());
+        nuevo.setNombre(datos.getNombre());
+        // Se encripta la contraseña
+        nuevo.setClave(codificarClave.encode(datos.getClave()));
+        nuevo.setActivo(true);
+        nuevo.setRol(rolNormal);
+
+        usuariosRepository.save(nuevo);
+
+        // 4. Respuesta de éxito
+        return new RegistroRespuesta(
+                "Usuario Registrado Correctamente",
+                nuevo.getUsuario(),
+                nuevo.getNombre(),
+                nuevo.getRol().getNombre()
+        );
+    }
 
     ///////////////////////////////////////////
     ///////// METODO PARA INICIAR SESION///////

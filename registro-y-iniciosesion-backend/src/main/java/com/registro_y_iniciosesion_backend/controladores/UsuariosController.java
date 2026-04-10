@@ -3,6 +3,8 @@ package com.registro_y_iniciosesion_backend.controladores;
 
 import com.registro_y_iniciosesion_backend.autenticacion.InicioSesionRespuesta;
 import com.registro_y_iniciosesion_backend.autenticacion.InicioSesionSolicitud;
+import com.registro_y_iniciosesion_backend.autenticacion.RegistroRespuesta;
+import com.registro_y_iniciosesion_backend.autenticacion.RegistroSolicitud;
 import com.registro_y_iniciosesion_backend.entidades.Usuarios;
 import com.registro_y_iniciosesion_backend.servicios.UsuariosService;
 import org.springframework.web.bind.annotation.*;
@@ -48,9 +50,10 @@ public class UsuariosController {
 
     //REGISTRAR USUARIO (POST /usuarios/registrar)
     @PostMapping("/registrar")
-    public Usuarios registrarUsuario(@RequestBody Usuarios usuario) {
-        return usuariosService.crear(usuario);
+    public RegistroRespuesta registrar(@RequestBody RegistroSolicitud usuario) {
+        return usuariosService.registrar(usuario);
     }
+
 
     //INICIAR SESION (POST /usuarios/inicio-sesion)
     @PostMapping("/inicio-sesion")
@@ -67,61 +70,36 @@ public class UsuariosController {
 ////////////////////////// COMO PROBAR EN POSTMAN  //////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-// 1 . Crear Un Usuario
+// 1 . REGISTRAR Un Usuario
 //     Metodo: POST
-//     URL: http://localhost:8080/usuarios
+//     URL: http://localhost:8080/usuarios/registrar
 //     Body -> raw -> JSON
-
 //        {
 //           "usuario": "admin",
 //           "nombre": "Administrador",
-//           "clave": "1234",
-//           "rol": {
-//             "id": 1
-//                 }
+//           "clave": "1234"
 //       }
 
 
+// 2. INICIAR SESION USUARIO
+//    Metodo: POST
+//    URL: http://localhost:8080/usuarios/inicio-sesion
+//     Body -> raw -> JSON
+//      {
+//         "usuario": "prueba",
+//         "nombre": "Esta Prueba",
+//      }
 
-// 2. Listar Todos Los Usuarios
+
+//CORREGIR
+
+// 3. Listar Todos Los Usuarios
 //    Metodo: GET
 //     URL: http://localhost:8080/usuarios
 
 
 
-// 3. Buscar Un Usuarios Por ID
+// 4. Buscar Un Usuarios Por ID
 //    Metodo: GET
 //    URL: http://localhost:8080/usuarios/1
-
-
-
-/////////////////////////////////////////////////////////////////////////////////
-///////////////////// REGISTRO E INICIO SESION POSTMAN  /////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-
-
-// 2. REGISTRO USUARIO
-//    Metodo: GET
-//    URL: http://localhost:8080/usuarios/registrar
-
-//      {
-//         "usuario": "prueba",
-//         "nombre": "Esta Prueba",
-//         "clave": "123456",
-//         "rol": {
-//             "id": 1
-//          }
-//      }
-
-
-// 2. Buscar Un Usuarios Por ID
-//    Metodo: GET
-//    URL: http://localhost:8080/usuarios/inicio-sesion
-
-//      CORRECTO (PARA EL INCORRECTO CAMBIAR USUARIO O CLAVE)
-//      {
-//          "usuario": "prueba",
-//          "clave": "123456"
-//      }
-
 
