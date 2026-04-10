@@ -1,8 +1,13 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { inicioSesionSolicitud } from '../interface/inicioSesionSolicitud.interface';
 import { inicioSesionRespuesta } from '../interface/inicioSesionRespuesta.interface';
+import { registroSolicitud } from './../interface/registroSolicitud.interface';
+import { registroRespuesta } from './../interface/registroRespuesta.interface';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +32,20 @@ export class AutenticadorService {
     // http://localhost:8080/usuarios/inicio-sesion
     return this.http.post<inicioSesionRespuesta>(`${this.apiUrl}/inicio-sesion`, data);
   }
+
+
+
+  // ---------------------------------------------------------
+  // MÉTODO PARA REGISTRAR USUARIO
+  // ---------------------------------------------------------
+  // Recibe un objeto con usuario y clave
+  // Devuelve un Observable tipado como registroRespuesta INTERFACE
+
+  registro(data: registroSolicitud): Observable<registroRespuesta> {
+    // Envia una peticion POST a:
+    // http://localhost:8080/usuarios/registrar
+    return this.http.post<registroRespuesta>(`${this.apiUrl}/registrar`, data);
+  }
+
 
 }
