@@ -11,3 +11,4 @@
 `ng generate component pagina/autenticacion/acceso` (Acceso)<br>
 `ng generate component pagina/autenticacion/registro` (Registro)<br>
 `ng generate service arquitectura/servicio/autenticador` (Servicio Autenticacion)<br>
+`Se crea interface inicioSesionSolicitud manualmente` (Interface InicioSesionSolicitud SOLICITUD AUTENTICACION BACKEND)<br>
