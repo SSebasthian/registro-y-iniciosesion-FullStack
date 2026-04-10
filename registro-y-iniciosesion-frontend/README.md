@@ -10,3 +10,4 @@
 `ng new registro-y-iniciosesion-frontend` (Se crea con CSS)<br>
 `ng generate component pagina/autenticacion/acceso` (Acceso)<br>
 `ng generate component pagina/autenticacion/registro` (Registro)<br>
+`ng generate service arquitectura/servicio/autenticador` (Servicio Autenticacion)<br>
