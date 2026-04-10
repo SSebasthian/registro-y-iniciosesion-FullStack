@@ -3,10 +3,10 @@
         <div class="text">
             Iniciar Sesión
         </div>
-        <form action="#">
+        <form (ngSubmit)="iniciarSesion()">
 
             <div class="field">
-                <input required="" type="text" class="input">
+                <input required="" type="text" class="input" [(ngModel)]="usuario" name="usuario">
                 <span class="span">
                     <mat-icon>person</mat-icon>
                 </span>
@@ -14,7 +14,7 @@
             </div>
 
             <div class="field">
-                <input required="" type="password" class="input">
+                <input required="" type="password" class="input" [(ngModel)]="clave" name="clave">
                 <span class="span">
                     <mat-icon>fingerprint</mat-icon>
                 </span>
@@ -27,5 +27,7 @@
                 <a routerLink="/autenticacion/registro">Registrarme</a>
             </div>
         </form>
+
+        <p *ngIf="mensaje">{{ mensaje }}</p>
     </div>
 </div>
