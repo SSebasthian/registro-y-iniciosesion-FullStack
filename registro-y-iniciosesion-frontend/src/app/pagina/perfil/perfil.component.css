@@ -161,3 +161,22 @@
     font-size: 45px;
     color: #1c1a1a;
 }
+
+
+.btn-logout-icon {
+  position: absolute;
+  right: 15px;
+  background: transparent;
+  border: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.btn-logout-icon mat-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  margin-left: -40px;
+  color: #f3f4f6;
+}
+

@@ -61,6 +61,11 @@ public class UsuariosController {
         return usuariosService.login(loginRequest.getUsuario(), loginRequest.getClave());
     }
 
+    //MOSTRAR PERFIL POR USUARIO (POST /usuarios/perfil)
+    @GetMapping("/perfil/{usuario}")
+    public Usuarios obtenerPerfil(@PathVariable String usuario) {
+        return usuariosService.buscarPorUsuario(usuario);
+    }
 
 }
 
@@ -91,15 +96,18 @@ public class UsuariosController {
 //      }
 
 
+
+// 3. Buscar Un Usuarios Por Usuario
+//    Metodo: GET
+//    URL: http://localhost:8080/usuarios/perfil/admin
+
+
+
+
 //CORREGIR
 
 // 3. Listar Todos Los Usuarios
 //    Metodo: GET
 //     URL: http://localhost:8080/usuarios
 
-
-
-// 4. Buscar Un Usuarios Por ID
-//    Metodo: GET
-//    URL: http://localhost:8080/usuarios/1
 

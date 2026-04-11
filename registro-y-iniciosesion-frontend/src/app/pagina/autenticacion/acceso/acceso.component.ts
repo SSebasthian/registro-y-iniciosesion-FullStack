@@ -3,6 +3,7 @@ import { AutenticadorService } from './../../../arquitectura/servicio/autenticad
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatIconModule} from '@angular/material/icon'
+import { Router } from '@angular/router';
 import { RouterLink, RouterModule } from "@angular/router";
 import { inicioSesionSolicitud } from './../../../arquitectura/interface/inicioSesionSolicitud.interface';
 import { inicioSesionRespuesta } from './../../../arquitectura/interface/inicioSesionRespuesta.interface';
@@ -21,7 +22,10 @@ export class AccesoComponent {
   clave: string = '';    // almacena la clave del formulario
   mensaje: string = '';  // mensaje para mostrar en pantalla (exitoso o error)
 
-  constructor(private autenticadorService: AutenticadorService) { }
+  constructor(
+    private autenticadorService: AutenticadorService,
+    private router: Router
+  ) { }
 
 
   // ---------------------------------------------------------
@@ -50,11 +54,11 @@ export class AccesoComponent {
 
         // Guardamos en localStorage los datos recibidos del backend
         // (por ejemplo token, id de usuario, nombre, etc.)
-        localStorage.setItem('usuario', JSON.stringify(respuesta));
+        localStorage.setItem('usuario', respuesta.usuario);
 
         // Luego podrías redirigir a otra página, como un dashboard
-        console.log('Redirigiendo a Inicio...');
-        // Aquí ponemos Router.navigate(['/inicio'])
+        //console.log('Redirigiendo a Perfil...');
+        this.router.navigate(['/autenticacion/perfil']);
       }
     },
 

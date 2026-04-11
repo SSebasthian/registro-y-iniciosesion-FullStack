@@ -48,4 +48,22 @@ export class AutenticadorService {
   }
 
 
+  // ---------------------------------------------------------
+  // MÉTODO PARA OBTENER PERFIL
+  // ---------------------------------------------------------
+  // Obtiene el perfil del usuario logueado desde el backend  
+  getPerfil(): Observable<any> {
+    // Se obtiene el usuario guardado en el localStorage
+    // Este valor se guarda al iniciar sesión
+    const usuario = localStorage.getItem('usuario');
+    // Se construye la petición GET hacia el backend
+    // http://localhost:8080/usuarios/perfil/admin
+    return this.http.get(`${this.apiUrl}/perfil/${usuario}`);
+  }
+
+  cerrarSesion() {
+    // Elimina el usuario del localStorage para cerrar sesión
+    localStorage.removeItem('usuario');
+  }
+
 }
