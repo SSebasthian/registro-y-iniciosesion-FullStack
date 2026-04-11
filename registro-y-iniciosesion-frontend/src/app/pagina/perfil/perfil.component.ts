@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'app-perfil',
   imports: [MatIconModule, CommonModule, MatTooltipModule],
   templateUrl: './perfil.component.html',
-  styleUrl: './perfil.component.css'
+  styleUrl: './perfil.component.css',
 })
 export class PerfilComponent {
 
@@ -25,6 +25,17 @@ export class PerfilComponent {
 
   // Método que se ejecuta al cargar el componente
   ngOnInit() {
+
+    // 1. Verificar si hay sesión
+    const usuario = localStorage.getItem('usuario');
+
+    // 2. Si NO hay usuario → lo saco
+    if (!usuario) {
+      this.router.navigate(['/autenticacion/acceso']);
+      return;
+    }
+
+    // 3. Si sí hay → cargar perfil
     // Se llama al servicio para obtener el perfil del usuario
     this.autenticadorService.getPerfil().subscribe({
 
@@ -35,6 +46,8 @@ export class PerfilComponent {
       },
       error: (err) => {
         console.error(err); // Mostramos el error
+        // Si falla (ej: usuario borrado) → cerrar sesión
+        this.router.navigate(['/autenticacion/acceso']);
       }
     });
   }

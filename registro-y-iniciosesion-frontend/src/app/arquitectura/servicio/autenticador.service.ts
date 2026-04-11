@@ -66,4 +66,9 @@ export class AutenticadorService {
     localStorage.removeItem('usuario');
   }
 
+
+  isLoggedIn(): boolean {
+  return !!localStorage.getItem('usuario');
+}
+
 }
