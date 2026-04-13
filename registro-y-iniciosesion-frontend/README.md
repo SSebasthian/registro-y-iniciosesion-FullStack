@@ -20,3 +20,4 @@
 `ng generate component pagina/permisos/permisos-rol` (PERMISOS ROL)<br>
 `ng generate component pagina/permisos/permisos-permisos` (PERMISOS PERMISOS)<br>
 
+`ng generate component pagina/permisos/permisos-permisosxrol` (PERMISOS - PERMISOS POR ROL)<br>
