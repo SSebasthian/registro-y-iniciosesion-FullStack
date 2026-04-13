@@ -18,4 +18,5 @@
 `ng generate component pagina/permisos/permisos-usuarios` (PERMISOS USUARIOS)<br>
 `ng generate component pagina/permisos/permisos-perfil` (PERMISOS PERFIL)<br>
 `ng generate component pagina/permisos/permisos-rol` (PERMISOS ROL)<br>
+`ng generate component pagina/permisos/permisos-permisos` (PERMISOS PERMISOS)<br>
 
