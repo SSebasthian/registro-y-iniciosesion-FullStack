@@ -16,3 +16,4 @@
 `ng generate component pagina/perfil` (Perfil)<br>
 `ng generate guard arquitectura/guardianRuta/enturamiento` (*)CanActivate (Guardian para Controlar Roles de Acceso)<br>
 `ng generate component pagina/permisos/permisos-usuarios` (PERMISOS USUARIOS)<br>
+`ng generate component pagina/permisos/permisos-perfil` (PERMISOS PERFIL)<br>
