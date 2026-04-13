@@ -4,6 +4,13 @@ import { AutenticadorService } from '../../../arquitectura/servicio/autenticador
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { PermisosPerfilComponent } from '../../permisos/permisos-perfil/permisos-perfil.component';
+import { PermisosUsuariosComponent } from '../../permisos/permisos-usuarios/permisos-usuarios.component';
+import { PermisosRolComponent } from '../../permisos/permisos-rol/permisos-rol.component';
+import { PermisosPermisosxrolComponent } from '../../permisos/permisos-permisosxrol/permisos-permisosxrol.component';
+import { PermisosPermisosComponent } from '../../permisos/permisos-permisos/permisos-permisos.component';
+
 
 
 @Component({
@@ -20,7 +27,8 @@ export class PerfilComponent {
   // Inyección del servicio que se conecta con el backend
   constructor(
     private autenticadorService: AutenticadorService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) { }
 
   // Método que se ejecuta al cargar el componente
@@ -61,4 +69,44 @@ export class PerfilComponent {
     // Redirigir a la página de inicio de sesión
     this.router.navigate(['/autenticacion/acceso']);
   }
+
+
+  //DIALOGOS PARA PERMISOS
+
+
+  permisosPerfil() {
+    this.dialog.open(PermisosPerfilComponent, {
+      width: '800px',
+      height: '600px'
+    });
+  }
+
+  permisosUsuarios() {
+    this.dialog.open(PermisosUsuariosComponent, {
+      width: '800px',
+      height: '600px'
+    });
+  }
+
+  permisosRol() {
+    this.dialog.open(PermisosRolComponent, {
+      width: '800px',
+      height: '600px'
+    });
+  }
+
+  permisosPermisos() {
+    this.dialog.open(PermisosPermisosComponent, {
+      width: '800px',
+      height: '600px'
+    });
+  }
+
+  permisosxRol() {
+    this.dialog.open(PermisosPermisosxrolComponent, {
+      width: '800px',
+      height: '600px'
+    });
+  }
+
 }

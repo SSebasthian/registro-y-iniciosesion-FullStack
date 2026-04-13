@@ -1,5 +1,14 @@
 
 <div class="perfil">
+
+    <div class="menu-lateral">
+        <button class="btn-accion" (click)="permisosPerfil()" matTooltip="Editar Perfil" matTooltipPosition="left" matTooltipHideDelay="100"><mat-icon>assignment_ind</mat-icon></button>
+        <button class="btn-accion" (click)="permisosUsuarios()" matTooltip="Usuarios" matTooltipPosition="left" matTooltipHideDelay="100"><mat-icon>accessibility_new</mat-icon></button>
+        <button class="btn-accion" (click)="permisosRol()" matTooltip="Rol" matTooltipPosition="left" matTooltipHideDelay="100"><mat-icon>assignment_turned_in</mat-icon></button>
+        <button class="btn-accion" (click)="permisosPermisos()" matTooltip="Permisos" matTooltipPosition="left" matTooltipHideDelay="100"><mat-icon>lock_person  </mat-icon></button>
+        <button class="btn-accion" (click)="permisosxRol()" matTooltip="Permisos por Rol" matTooltipPosition="left" matTooltipHideDelay="100"><mat-icon>verified_user </mat-icon></button>
+    </div>
+
     <div class="tarjeta">   
         <div class="tarjeta__cuerpo">
             <div class="tarjeta__cabeza">
