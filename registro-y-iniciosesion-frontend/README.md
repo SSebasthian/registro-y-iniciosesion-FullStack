@@ -13,7 +13,7 @@
 `ng generate service arquitectura/servicio/autenticador` (Servicio Autenticacion)<br>
 `Se crea interface inicioSesionSolicitud manualmente` (Interface InicioSesionSolicitud SOLICITUD AUTENTICACION BACKEND)<br>
 `Se crea interface inicioSesionRespuesta manualmente` (Interface inicioSesionRespuesta RESPUESTA AUTENTICACION BACKEND)<br>
-`ng generate component pagina/perfil` (Perfil)<br>
+`ng generate component pagina/autenticacion/perfil` (Perfil)<br>
 `ng generate guard arquitectura/guardianRuta/enturamiento` (*)CanActivate (Guardian para Controlar Roles de Acceso)<br>
 `ng generate component pagina/permisos/permisos-usuarios` (PERMISOS USUARIOS)<br>
 `ng generate component pagina/permisos/permisos-perfil` (PERMISOS PERFIL)<br>

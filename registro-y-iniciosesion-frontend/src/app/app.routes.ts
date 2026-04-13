@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { AccesoComponent } from './pagina/autenticacion/acceso/acceso.component';
 import { RegistroComponent } from './pagina/autenticacion/registro/registro.component';
-import { PerfilComponent } from './pagina/perfil/perfil.component';
+import { PerfilComponent } from './pagina/autenticacion/perfil/perfil.component';
 import { estadoPrivado, estadoPublico } from './arquitectura/guardianRuta/enturamiento.guard';
 
 

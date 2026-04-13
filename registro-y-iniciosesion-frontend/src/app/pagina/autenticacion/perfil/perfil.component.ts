@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon'
-import { AutenticadorService } from '../../arquitectura/servicio/autenticador.service';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
