@@ -15,3 +15,4 @@
 `Se crea interface inicioSesionRespuesta manualmente` (Interface inicioSesionRespuesta RESPUESTA AUTENTICACION BACKEND)<br>
 `ng generate component pagina/perfil` (Perfil)<br>
 `ng generate guard arquitectura/guardianRuta/enturamiento` (*)CanActivate (Guardian para Controlar Roles de Acceso)<br>
+`ng generate component pagina/permisos/permisos-usuarios` (PERMISOS USUARIOS)<br>
