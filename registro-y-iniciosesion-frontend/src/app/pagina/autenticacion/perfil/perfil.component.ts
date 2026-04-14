@@ -98,7 +98,7 @@ export class PerfilComponent {
   permisosUsuarios() {
     this.dialog.open(PermisosUsuariosComponent, {
       width: '800px',
-      height: '600px'
+      height: '455px'
     });
   }
 
