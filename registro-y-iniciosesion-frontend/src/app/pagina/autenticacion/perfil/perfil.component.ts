@@ -77,7 +77,7 @@ export class PerfilComponent {
   permisosPerfil() {
     this.dialog.open(PermisosPerfilComponent, {
       width: '800px',
-      height: '600px'
+      height: '350px'
     });
   }
 
