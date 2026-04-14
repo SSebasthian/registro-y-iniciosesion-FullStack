@@ -123,7 +123,43 @@ public class UsuariosService {
         );
     }
     ///////////////////////////////////////////
+    ///////// METODO PARA EDITAR PERFIL ///////
     ///////////////////////////////////////////
+    public Usuarios actualizarPerfil(String usuario, Usuarios datos) {
+
+        // Buscar usuario existente
+        Usuarios user = usuariosRepository.findByUsuario(usuario);
+
+        if (user == null) {
+            return null;
+        }
+
+        // Actualizar SOLO lo necesario
+        user.setNombre(datos.getNombre());
+
+        // IMPORTANTE: NO tocar rol ni clave aquí
+        return usuariosRepository.save(user);
+    }
+
+    public String cambiarClave(String usuario, String actual, String nueva) {
+        Usuarios user = usuariosRepository.findByUsuario(usuario);
+
+        if (user == null) {
+            return "Usuario no encontrado";
+        }
+
+        // Validar contraseña actual
+        if (!codificarClave.matches(actual, user.getClave())) {
+            return "Contraseña actual incorrecta";
+        }
+
+        // Guardar nueva contraseña encriptada
+        user.setClave(codificarClave.encode(nueva));
+        usuariosRepository.save(user);
+
+        return "Contraseña actualizada correctamente";
+    }
+
 
 
 }

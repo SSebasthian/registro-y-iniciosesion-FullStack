@@ -10,6 +10,7 @@ import com.registro_y_iniciosesion_backend.servicios.UsuariosService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -67,13 +68,30 @@ public class UsuariosController {
         return usuariosService.buscarPorUsuario(usuario);
     }
 
+    //ACTUALIZAR PERFIL
+    @PutMapping("/perfil/{usuario}")
+    public Usuarios actualizarPerfil(@PathVariable String usuario, @RequestBody Usuarios usuarios) {
+        return usuariosService.actualizarPerfil(usuario, usuarios);
+    }
+
+    //ACTUALIZAR PERFIL CONTRASEÑA
+    @PutMapping("/perfil/{usuario}/clave")
+    public Map<String, String> cambiarClave(@PathVariable String usuario, @RequestBody Map<String, String> datos) {
+
+        String mensaje = usuariosService.cambiarClave(
+                usuario,
+                datos.get("actual"),
+                datos.get("nueva")
+        );
+
+        return Map.of("mensaje", mensaje);
+    }
 }
 
 
-
-/////////////////////////////////////////////////////////////////////////////////
-////////////////////////// COMO PROBAR EN POSTMAN  //////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////////////////////
+/// /////////////////////// COMO PROBAR EN POSTMAN  //////////////////////////////
+/// //////////////////////////////////////////////////////////////////////////////
 
 // 1 . REGISTRAR Un Usuario
 //     Metodo: POST
@@ -96,12 +114,9 @@ public class UsuariosController {
 //      }
 
 
-
 // 3. Buscar Un Usuarios Por Usuario
 //    Metodo: GET
 //    URL: http://localhost:8080/usuarios/perfil/admin
-
-
 
 
 //CORREGIR

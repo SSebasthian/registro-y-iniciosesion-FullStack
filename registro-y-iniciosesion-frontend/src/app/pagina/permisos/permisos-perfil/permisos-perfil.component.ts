@@ -7,6 +7,8 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
+
 
 
 
@@ -18,37 +20,108 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class PermisosPerfilComponent {
 
-  constructor(private dialog: MatDialogRef<PermisosPerfilComponent>) {}
+  constructor(
+    private autenticadorService: AutenticadorService,
+    private dialog: MatDialogRef<PermisosPerfilComponent>
+  ) { }
 
   editando: boolean = false;
   modoPassword: boolean = false;
   verPasswordActual = false;
   verPasswordNueva = false;
+  claveActual: string = '';
+  claveNueva: string = '';
+  claveConfirmar: string = '';
+  mensajeclave: string = '';
 
-  usuarioPrueba = {
-    usuario: 'Usuarioprueba',
-    nombre: 'Usuario Prueba Eliminar',
-    rol: 'Administrador',
-    activo: true
-  };
+  usuario: any;
 
+  ngOnInit() {
+    this.autenticadorService.getPerfil().subscribe({
+      next: (datos) => {
+        this.usuario = datos;
+        console.log('Se Cargo el Usuario:', datos.usuario)
+        //console.log('Usuario real:', datos);
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
 
   editarPerfil() {
     this.editando = true;
   }
 
   guardarPerfil() {
-    console.log('Guardar perfil:', this.usuarioPrueba);
-    this.editando = false;
+    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+
+    this.autenticadorService.actualizarPerfil(
+      usuarioGuardado.usuario,
+      this.usuario
+    ).subscribe({
+
+      next: (res:any) => {
+        console.log('Perfil actualizado', res.usuario);
+        //console.log('Perfil actualizado', res);
+        this.usuario = res; //refrescar datos
+        this.editando = false;
+        // AVISAR AL PERFIL DEL CAMBIO
+        this.autenticadorService.notificarPerfilActualizado();
+      },
+
+      error: (err) => {
+        console.error('Error', err);
+      }
+
+    });
   }
- 
+
   abrirPassword() {
     this.modoPassword = true;
   }
 
   guardarPassword() {
-    console.log('Guardar nueva contraseña');
-    this.modoPassword = false;
+    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+    // VALIDACIONES
+    if (!this.claveActual || !this.claveNueva || !this.claveConfirmar) {
+      this.mensajeclave = 'Todos los campos son obligatorios';
+      console.log(this.mensajeclave);
+      return;
+    }
+
+    if (this.claveNueva !== this.claveConfirmar) {
+      this.mensajeclave = 'Las contraseñas no coinciden';
+      console.log(this.mensajeclave);
+      return;
+    }
+    this.autenticadorService.cambiarClave(
+      usuarioGuardado.usuario,
+      this.claveActual,
+      this.claveNueva
+    ).subscribe({
+
+      next: (res: any) => {
+        this.mensajeclave = res.mensaje;
+        console.log(this.mensajeclave);
+
+        if (res.mensaje.includes('correctamente')) {
+          this.claveActual = '';
+          this.claveNueva = '';
+          this.claveConfirmar = '';
+          this.modoPassword = false;
+        }
+       
+
+      },
+
+      error: (err) => {
+        console.error(err);
+        this.mensajeclave = 'Error al cambiar contraseña';
+      }
+
+    });
   }
 
   accionCancelar() {
@@ -61,8 +134,7 @@ export class PermisosPerfilComponent {
     // MODO EDICIÓN O PASSWORD → resetear
     this.editando = false;
     this.modoPassword = false;
-
-    console.log('Cancelado / vuelto atrás');
-    }
+    //console.log('Cancelado / vuelto atrás');
+  }
 
 }

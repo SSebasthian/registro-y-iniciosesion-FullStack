@@ -54,7 +54,7 @@ export class AccesoComponent {
 
         // Guardamos en localStorage los datos recibidos del backend
         // (por ejemplo token, id de usuario, nombre, etc.)
-        localStorage.setItem('usuario', respuesta.usuario);
+       localStorage.setItem('usuario', JSON.stringify(respuesta));
 
         // Luego podrías redirigir a otra página, como un dashboard
         //console.log('Redirigiendo a Perfil...');

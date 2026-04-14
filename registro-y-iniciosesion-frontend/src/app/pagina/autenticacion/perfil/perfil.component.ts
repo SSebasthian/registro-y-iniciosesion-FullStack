@@ -58,12 +58,17 @@ export class PerfilComponent {
         this.router.navigate(['/autenticacion/acceso']);
       }
     });
+
+    // ESCUCHAR CAMBIOS DEL DIALOG - EDITAR PERFIL
+    this.autenticadorService.perfilActualizado$.subscribe(() => {
+      this.cargarPerfil();
+    });
   }
 
 
-   cerrarSesion() {
+  cerrarSesion() {
     // Llamamos al método del servicio para cerrar sesión
-    this.autenticadorService.cerrarSesion(); 
+    this.autenticadorService.cerrarSesion();
     // limpiar consola o estado
     this.Usuario = null;
     // Redirigir a la página de inicio de sesión
@@ -75,9 +80,18 @@ export class PerfilComponent {
 
 
   permisosPerfil() {
-    this.dialog.open(PermisosPerfilComponent, {
+    const dialogRef = this.dialog.open(PermisosPerfilComponent, {
       width: '800px',
       height: '350px'
+    });
+
+    dialogRef.afterClosed().subscribe((resultado) => {
+
+      // 👇 Si el dialog devolvió true → recargar perfil
+      if (resultado) {
+        this.cargarPerfil();
+      }
+
     });
   }
 
@@ -109,4 +123,18 @@ export class PerfilComponent {
     });
   }
 
+
+  cargarPerfil() {
+    this.autenticadorService.getPerfil().subscribe({
+      next: (datos) => {
+        this.Usuario = datos;
+      },
+      error: (err) => {
+        console.error(err);
+        this.router.navigate(['/autenticacion/acceso']);
+      }
+    });
+  }
 }
+
+

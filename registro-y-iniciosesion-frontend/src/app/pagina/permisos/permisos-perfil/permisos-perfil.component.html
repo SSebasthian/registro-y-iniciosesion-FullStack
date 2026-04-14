@@ -12,17 +12,17 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Usuario</mat-label>
-                <input matInput [value]="usuarioPrueba.usuario" disabled>
+                <input matInput [value]="usuario.usuario" disabled>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Rol</mat-label>
-                <input matInput [value]="usuarioPrueba.rol" disabled>
+                <input matInput [value]="usuario.rol.nombre" disabled>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Nombre</mat-label>
-                <input matInput [value]="usuarioPrueba.nombre" [disabled]="!editando">
+                <input matInput [(ngModel)]="usuario.nombre" [disabled]="!editando">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -42,32 +42,38 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Usuario</mat-label>
-                <input matInput [value]="usuarioPrueba.usuario" disabled>
+                <input matInput [value]="usuario.usuario" disabled>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Contraseña actual</mat-label>
-                <input matInput [type]="verPasswordActual ? 'text' : 'password'">
-                <a class="ocultarmostrar-clave" matSuffix type="button" (click)="verPasswordActual = !verPasswordActual">
+                <input matInput [(ngModel)]="claveActual" [type]="verPasswordActual ? 'text' : 'password'">
+                <a class="ocultarmostrar-clave" matSuffix type="button"
+                    (click)="verPasswordActual = !verPasswordActual">
                     <mat-icon> {{ verPasswordActual ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </a>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Nueva contraseña</mat-label>
-                <input matInput [type]="verPasswordNueva  ? 'text' : 'password'">
-                <a class="ocultarmostrar-clave" matSuffix type="button" (click)="verPasswordNueva  = !verPasswordNueva ">
-                    <mat-icon> {{ verPasswordNueva  ? 'visibility_off' : 'visibility' }}</mat-icon>
+                <input matInput [(ngModel)]="claveNueva" [type]="verPasswordNueva  ? 'text' : 'password'">
+                <a class="ocultarmostrar-clave" matSuffix type="button"
+                    (click)="verPasswordNueva  = !verPasswordNueva ">
+                    <mat-icon> {{ verPasswordNueva ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </a>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Confirmar contraseña</mat-label>
-                <input matInput [type]="verPasswordNueva  ? 'text' : 'password'">
-                <a class="ocultarmostrar-clave" matSuffix type="button" (click)="verPasswordNueva  = !verPasswordNueva ">
-                    <mat-icon> {{ verPasswordNueva  ? 'visibility_off' : 'visibility' }}</mat-icon>
+                <input matInput [(ngModel)]="claveConfirmar" [type]="verPasswordNueva  ? 'text' : 'password'">
+                <a class="ocultarmostrar-clave" matSuffix type="button"
+                    (click)="verPasswordNueva  = !verPasswordNueva ">
+                    <mat-icon> {{ verPasswordNueva ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </a>
             </mat-form-field>
+            <p *ngIf="mensajeclave" class="mensaje">
+                {{ mensajeclave }}
+            </p>
 
         </mat-dialog-content>
     </div>
