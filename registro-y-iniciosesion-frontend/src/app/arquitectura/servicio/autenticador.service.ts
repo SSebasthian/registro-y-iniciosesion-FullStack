@@ -9,8 +9,6 @@ import { registroSolicitud } from './../interface/registroSolicitud.interface';
 import { registroRespuesta } from './../interface/registroRespuesta.interface';
 
 
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -52,9 +50,12 @@ export class AutenticadorService {
 
 
   // ---------------------------------------------------------
-  // MÉTODO PARA OBTENER PERFIL
+  // MÉTODO PARA PERFIL
   // ---------------------------------------------------------
 
+  // ----------------
+  // OBTENER PERFIL--
+  // ----------------
   private perfilActualizado = new BehaviorSubject<boolean>(false);
   perfilActualizado$ = this.perfilActualizado.asObservable();
 
@@ -68,6 +69,9 @@ export class AutenticadorService {
     return this.http.get(`${this.apiUrl}/perfil/${usuarioGuardado.usuario}`);
   }
 
+  // ----------------
+  // CERRAR PERFIL---
+  // ----------------
   cerrarSesion() {
     // Elimina el usuario del localStorage para cerrar sesión
     localStorage.removeItem('usuario');
@@ -78,19 +82,78 @@ export class AutenticadorService {
     return !!localStorage.getItem('usuario');
   }
 
+  // --------------------
+  // ACTUALIZAR PERFIL---
+  // --------------------
   actualizarPerfil(usuario: string, datos: any) {
     return this.http.put(`${this.apiUrl}/perfil/${usuario}`, datos);
   }
 
+  // -----------------
+  // CAMBIOS PERFIL---
+  // -----------------
   notificarPerfilActualizado() {
     this.perfilActualizado.next(true);
   }
 
+  // ----------------------
+  // CERRAR CLAVE PERFIL---
+  // ----------------------
   cambiarClave(usuario: string, actual: string, nueva: string) {
     return this.http.put(`${this.apiUrl}/perfil/${usuario}/clave`, {
       actual,
       nueva
     });
   }
+
+
+  // ---------------------------------------------------------
+  // MÉTODO PARA USUARIOS ADMINISTRADOR
+  // ---------------------------------------------------------
+
+  // -------------------
+  // OBTENER USUARIOS---
+  // -------------------
+  obtenerUsuariosAdmin(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/admin`);
+  }
+
+  // ----------------------
+  // ACTUALZIAR USUARIOS---
+  // ----------------------
+  actualizarUsuariosAdmin(usuario: string, datos: any) {
+    return this.http.put(`${this.apiUrl}/admin/${usuario}`, datos);
+  }
+
+  // -------------------
+  // CABMIAR USUARIOS---
+  // -------------------
+  cambiarClaveAdmin(usuario: string, nueva: string) {
+    return this.http.put(`${this.apiUrl}/admin/${usuario}/clave`, {
+      nueva
+    });
+  }
+
+  // -------------------
+  // OBTENER ROLES------
+  // -------------------
+  obtenerRoles() {
+    return this.http.get<any[]>(`${this.apiUrl}/admin/roles`);
+  }
+
+  // ---------------------
+  // REGISTRAR USUARIOS---
+  // ---------------------
+  registrarAdmin(data: any) {
+    return this.http.post<registroRespuesta>(`${this.apiUrl}/admin/registrar`, data);
+  }
+
+  // --------------------
+  // ELIMINAR USUARIOS---
+  // --------------------
+  eliminarUsuarioAdmin(usuario: string) {
+    return this.http.delete(`${this.apiUrl}/admin/${usuario}`);
+  }
+
 
 }

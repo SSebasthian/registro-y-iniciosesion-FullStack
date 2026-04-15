@@ -5,6 +5,8 @@ import com.registro_y_iniciosesion_backend.autenticacion.InicioSesionRespuesta;
 import com.registro_y_iniciosesion_backend.autenticacion.InicioSesionSolicitud;
 import com.registro_y_iniciosesion_backend.autenticacion.RegistroRespuesta;
 import com.registro_y_iniciosesion_backend.autenticacion.RegistroSolicitud;
+import com.registro_y_iniciosesion_backend.entidades.Rol;
+import com.registro_y_iniciosesion_backend.repositorios.RolRepository;
 import com.registro_y_iniciosesion_backend.entidades.Usuarios;
 import com.registro_y_iniciosesion_backend.servicios.UsuariosService;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +30,6 @@ public class UsuariosController {
     @PostMapping
     public Usuarios crearUsuario(@RequestBody Usuarios usuario) {
         return usuariosService.crear(usuario);
-    }
-
-    // Listar usuarios (GET /usuarios)
-    @GetMapping
-    public List<Usuarios> listarUsuarios() {
-        return usuariosService.listar();
     }
 
     // Buscar por ID (GET /usuarios/{id})
@@ -85,6 +81,48 @@ public class UsuariosController {
         );
 
         return Map.of("mensaje", mensaje);
+    }
+
+    //LISTAR USUARIOS (GET /usuarios)
+    @GetMapping("/admin")
+    public List<Usuarios> listarUsuarios() {
+        return usuariosService.listar();
+    }
+
+
+    //EDITAR USUARIOS
+    @PutMapping("/admin/{usuario}")
+    public Usuarios actualizarUsuarioAdmin(@PathVariable String usuario, @RequestBody Usuarios datos) {
+        return usuariosService.actualizarUsuarioAdmin(usuario, datos);
+    }
+
+    @GetMapping("/admin/roles")
+    public List<Rol> listarRoles() {
+        return usuariosService.listarRoles();
+    }
+
+    //EDITAR USUARIO CONTRASEÑA
+    @PutMapping("/admin/{usuario}/clave")
+    public Map<String, String> cambiarClaveAdmin(@PathVariable String usuario, @RequestBody Map<String, String> datos) {
+
+        String mensaje = usuariosService.cambiarClaveAdmin(
+                usuario,
+                datos.get("nueva")
+        );
+        return Map.of("mensaje", mensaje);
+    }
+
+    //CREAR USUARIO DESDE ADMIN
+    @PostMapping("/admin/registrar")
+    public RegistroRespuesta registrarAdmin(@RequestBody RegistroSolicitud datos) {
+        return usuariosService.registrarAdmin(datos);
+    }
+
+    //ELIMINAR USUARIO
+    @DeleteMapping("/admin/{usuario}")
+    public Map<String, String> eliminarUsuario(@PathVariable String usuario) {
+        usuariosService.eliminarUsuario(usuario);
+        return Map.of("mensaje", "Usuario eliminado correctamente");
     }
 }
 

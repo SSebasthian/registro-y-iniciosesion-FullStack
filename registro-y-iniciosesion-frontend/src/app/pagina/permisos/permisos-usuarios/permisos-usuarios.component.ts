@@ -4,105 +4,174 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
+
+
 
 
 @Component({
   selector: 'app-permisos-usuarios',
-  imports: [MatIconModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule, FormsModule, MatDialogModule, CommonModule],
+  imports: [MatIconModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule, FormsModule, MatDialogModule, CommonModule, MatSelectModule],
   templateUrl: './permisos-usuarios.component.html',
   styleUrl: './permisos-usuarios.component.css'
 })
 export class PermisosUsuariosComponent {
 
+  filtro: string = '';                  /** Texto de filtro para búsqueda de usuarios */
+  usuarioSeleccionado: any = null;      /** Usuario seleccionado para edición */
+  editando: boolean = false;            /** Indica si se está en modo edición */
+  modoPassword: boolean = false;        /** Modo cambio de contraseña */
+  verPasswordActual = false;            /** Mostrar/ocultar password actual */
+  verPasswordNueva = false;             /** Mostrar/ocultar password nueva */
+  modoCrearUsuario: boolean = false;    /** Modo creación de usuario */
+  usuarios: any[] = [];                 /** Lista de usuarios */
+  roles: any[] = [];                    /** Lista de roles disponibles */
+  usuarioOriginal: string = '';         /** Usuario original antes de editar */
+  nuevaClave: string = '';              /** Nueva contraseña */
+  confirmarClave: string = '';          /** Confirmación de contraseña */
 
-  constructor(private dialog: MatDialogRef<PermisosUsuariosComponent>) { }
+  constructor(
+    private dialog: MatDialogRef<PermisosUsuariosComponent>,
+    private autenticadorService: AutenticadorService
+  ) { }
 
-  filtro: string = '';
-  usuarioSeleccionado: any = null;
-  editando: boolean = false;
-  modoPassword: boolean = false;
-  verPasswordActual = false;
-  verPasswordNueva = false;
-  modoCrearUsuario: boolean = false;
+  ngOnInit() {
+    this.cargarUsuarios();
+    this.cargarRoles();
+  }
 
-  usuarios = [
-    {
-      usuario: 'usuario1',
-      nombre: 'NombreApellido1',
-      rol: 'Administrador',
-      activo: true
-    },
-    {
-      usuario: 'usuario2',
-      nombre: 'NombreApellido2',
-      rol: 'Administrador',
-      activo: true
-    },
-    {
-      usuario: 'usuario3',
-      nombre: 'NombreApellido3',
-      rol: 'Normal',
-      activo: false
-    },
-    {
-      usuario: 'usuario4',
-      nombre: 'NombreApellido4',
-      rol: 'Administrador',
-      activo: true
-    },
-    {
-      usuario: 'usuario5',
-      nombre: 'NombreApellido5',
-      rol: 'Normal',
-      activo: true
-    },
-    {
-      usuario: 'usuario6',
-      nombre: 'NombreApellido6',
-      rol: 'Normal',
-      activo: false
-    }
-  ];
+  /****************************************************
+  /*** Obtiene la lista de usuarios desde el backend **
+  *****************************************************/
+  cargarUsuarios() {
+    this.autenticadorService.obtenerUsuariosAdmin().subscribe({
+      next: (data) => {
+        this.usuarios = data;
+        console.log('Se Listaron los Usuarios');
+        //console.log(this.usuarios);
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios admin', err);
+      }
 
-  nuevoUsuario: any = {
-    nombre: '',
-    usuario: '',
-    clave: '',
-    rol: ''
-  };
+    });
+  }
 
+  /**********************************************
+   * Obtiene la lista de roles desde el backend *
+   **********************************************/
+  cargarRoles() {
+    this.autenticadorService.obtenerRoles().subscribe({
+      next: (data) => this.roles = data,
+      error: (err) => console.error(err)
+    });
+  }
 
+  /**********************************************
+   **** Compara dos roles para el select *********
+   **********************************************/
+  compararRoles(r1: any, r2: any) {
+    return r1 && r2 ? r1.id === r2.id : r1 === r2;
+  }
 
-
+  /**********************************************
+   ***** Vuelve a diseño listar usuarios ********
+   **********************************************/
   volverLista() {
     this.editando = false;
     this.usuarioSeleccionado = null;
   }
 
+  /**********************************************
+   *** Abre formulario de edición de usuario ****
+   **********************************************/
   editarUsuario(usuario: any) {
     this.usuarioSeleccionado = { ...usuario };
+    this.usuarioOriginal = usuario.usuario;
     this.editando = true;
     this.modoPassword = false;
+    console.log('Se Selecciona Usuario: ', this.usuarioSeleccionado.usuario);
   }
 
+  /**********************************************
+   **** Guarda cambios del usuario editado ******
+   **********************************************/
   guardarUsuario() {
-    console.log('Usuario editado:', this.usuarioSeleccionado);
-    this.editando = false;
+    const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}');
+    this.autenticadorService.actualizarUsuariosAdmin(this.usuarioOriginal, this.usuarioSeleccionado).subscribe({
+
+      next: () => {
+        // SI ES EL MISMO USUARIO LOGUEADO
+        if (usuarioActual.usuario === this.usuarioOriginal) {
+
+          const usuarioActualizado = {
+            ...usuarioActual,
+            usuario: this.usuarioSeleccionado.usuario, // 👈 nuevo username
+            nombre: this.usuarioSeleccionado.nombre,
+            rol: this.usuarioSeleccionado.rol.nombre
+          };
+
+          // ACTUALIZAR LOCALSTORAGE
+          localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+
+          // NOTIFICAR A TODA LA APP
+          this.autenticadorService.notificarPerfilActualizado();
+        }
+
+        // refrescar lista
+        this.cargarUsuarios();
+
+        this.editando = false;
+
+        console.log('Usuario actualizado correctamente');
+      },
+      error: (err) => {
+        console.error('Error', err);
+      }
+    });
   }
 
+  /**********************************************
+   **** Activa modo cambio de contraseña ********
+   **********************************************/
   abrirPassword() {
     this.modoPassword = true;
   }
 
+  /**********************************************
+   **** Guarda nueva contraseña del usuario *****
+   **********************************************/
   guardarPassword() {
-    console.log('Guardar nueva contraseña');
-    this.modoPassword = false;
+    // VALIDACIÓN
+    if (this.nuevaClave !== this.confirmarClave) {
+      console.error('Las contraseñas no coinciden');
+      return;
+    }
+
+    this.autenticadorService
+      .cambiarClaveAdmin(this.usuarioSeleccionado.usuario, this.nuevaClave)
+      .subscribe({
+        next: (res: any) => {
+          console.log(res.mensaje);
+
+          this.modoPassword = false;
+          this.nuevaClave = '';
+          this.confirmarClave = '';
+        },
+        error: (err) => {
+          console.error('Error cambiando clave', err);
+        }
+      });
   }
 
 
+  /**********************************************
+   **** Cancela cualquier operación activa ******
+   **********************************************/
   accionCancelar() {
     if (!this.editando && !this.modoPassword && !this.modoCrearUsuario) {
       this.dialog.close();
@@ -116,8 +185,19 @@ export class PermisosUsuariosComponent {
   }
 
 
-
-
+  /**********************************************
+   ************ Objeto para nuevo usuario *******
+   **********************************************/
+  nuevoUsuario: any = {
+    nombre: '',
+    usuario: '',
+    clave: '',
+    rol: ''
+  };
+  
+  /**********************************************
+   ** Activa formulario de creación de usuario **
+   **********************************************/
   crearUsuario() {
     this.modoCrearUsuario = true;
     this.editando = false;
@@ -127,16 +207,84 @@ export class PermisosUsuariosComponent {
       nombre: '',
       usuario: '',
       clave: '',
-      rol: ''
+      rol: 2
     };
   }
 
+  /**********************************************
+   ** Guarda un nuevo usuario en el sistema *****
+   **********************************************/
   guardarNuevoUsuario() {
-    console.log('Nuevo usuario:', this.nuevoUsuario);
+    if (!this.nuevoUsuario.nombre ||
+      !this.nuevoUsuario.usuario ||
+      !this.nuevoUsuario.clave ||
+      !this.nuevoUsuario.rol) {
 
-    this.usuarios.push({ ...this.nuevoUsuario, activo: true });
+      alert('Todos los campos son obligatorios');
+      return;
+    }
+    const data = {
+      usuario: this.nuevoUsuario.usuario,
+      clave: this.nuevoUsuario.clave,
+      nombre: this.nuevoUsuario.nombre,
+      rolId: this.nuevoUsuario.rol
+    };
 
-    this.modoCrearUsuario = false;
+    this.autenticadorService.registrarAdmin(data).subscribe({
+      next: (res) => {
+        console.log(res.mensaje);
+        alert(res.mensaje);
+
+        // recargar lista
+        this.cargarUsuarios();
+
+        // volver a lista
+        this.modoCrearUsuario = false;
+
+
+      },
+      error: (err) => {
+        console.error('Error creando usuario', err);
+      }
+    });
+  }
+
+  /**********************************************
+   **** Filtra usuarios por nombre o usuario ****
+   **********************************************/
+  get usuariosFiltrados() {
+    const texto = this.filtro.toLowerCase().trim();
+
+    if (!texto) return this.usuarios;
+
+    return this.usuarios.filter(u =>
+      u.nombre.toLowerCase().includes(texto) ||
+      u.usuario.toLowerCase().includes(texto)
+    );
+  }
+
+  /**********************************************
+   **** Elimina un usuario del sistema **********
+   **********************************************/
+  eliminarUsuario(usuario: any) {
+
+    const confirmacion = confirm(`¿Seguro que deseas eliminar al usuario ${usuario.usuario}?`);
+
+    if (!confirmacion) return;
+
+    this.autenticadorService.eliminarUsuarioAdmin(usuario.usuario).subscribe({
+      next: (res: any) => {
+
+        console.log(res.mensaje || 'Usuario eliminado correctamente');
+
+        // refrescar lista
+        this.cargarUsuarios();
+
+      },
+      error: (err) => {
+        console.error('Error eliminando usuario', err);
+      }
+    });
   }
 
 }

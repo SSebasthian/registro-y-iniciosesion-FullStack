@@ -10,6 +10,7 @@ import com.registro_y_iniciosesion_backend.repositorios.RolRepository;
 import com.registro_y_iniciosesion_backend.repositorios.UsuariosRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -53,15 +54,15 @@ public class UsuariosService {
     }
 
 
-    ///////////////////////////////////////////
-    ////// METODO PARA REGISTRAR USUARIO///////
-    ///////////////////////////////////////////
+    /// ////////////////////////////////////////
+    /// /// METODO PARA REGISTRAR USUARIO///////
+    /// ////////////////////////////////////////
     public RegistroRespuesta registrar(RegistroSolicitud datos) {
 
         // 1. Verificar que el usuario NO exista antes de registrar
         Usuarios existente = usuariosRepository.findByUsuario(datos.getUsuario());
         if (existente != null) {
-            return new RegistroRespuesta("El Usuario Ya Existe",null, null, null);
+            return new RegistroRespuesta("El Usuario Ya Existe", null, null, null);
         }
 
         // 2. Asignar por defecto el rol NORMAL (id = 2)
@@ -91,10 +92,10 @@ public class UsuariosService {
         );
     }
 
-    ///////////////////////////////////////////
-    ///////// METODO PARA INICIAR SESION///////
-    ///////////////////////////////////////////
-    public InicioSesionRespuesta login (String usuario, String clave) {
+    /// ////////////////////////////////////////
+    /// ////// METODO PARA INICIAR SESION///////
+    /// ////////////////////////////////////////
+    public InicioSesionRespuesta login(String usuario, String clave) {
         // Buscar el usuario en la base de datos por su nombre de usuario
         Usuarios user = usuariosRepository.findByUsuario(usuario);
 
@@ -122,9 +123,15 @@ public class UsuariosService {
                 user.getRol().getNombre()
         );
     }
-    ///////////////////////////////////////////
-    ///////// METODO PARA EDITAR PERFIL ///////
-    ///////////////////////////////////////////
+
+    /// ////////////////////////////////////////
+    /// ////// METODO PARA EDITAR PERFIL ///////
+    /// ////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Actualiza el perfil del usuario (solo datos básicos)- No modifica rol ni contraseña
+    ////////////////////////////////////////////////////////////////////////////////////////
     public Usuarios actualizarPerfil(String usuario, Usuarios datos) {
 
         // Buscar usuario existente
@@ -141,6 +148,9 @@ public class UsuariosService {
         return usuariosRepository.save(user);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Cambia la contraseña del usuario validando la actua
+    ////////////////////////////////////////////////////////////////////////////////////////
     public String cambiarClave(String usuario, String actual, String nueva) {
         Usuarios user = usuariosRepository.findByUsuario(usuario);
 
@@ -160,6 +170,101 @@ public class UsuariosService {
         return "Contraseña actualizada correctamente";
     }
 
+    /// ////////////////////////////////////////
+    /// //// METODO PARA EDITAR USUARIOS ///////
+    /// ////////////////////////////////////////
 
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Actualiza usuario desde el panel ADMIN - Permite modificar nombre, usaurio, estado, rol
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public Usuarios actualizarUsuarioAdmin(String usuario, Usuarios datos) {
+
+        Usuarios user = usuariosRepository.findByUsuario(usuario);
+
+        if (user == null) {
+            return null;
+        }
+
+        // Actualizar todo lo permitido por admin
+        user.setNombre(datos.getNombre());
+        user.setUsuario(datos.getUsuario());
+        user.setActivo(datos.getActivo());
+
+        // ROL (muy importante)
+        if (datos.getRol() != null) {
+            user.setRol(datos.getRol());
+        }
+
+        return usuariosRepository.save(user);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Cambia contraseña desde ADMIN sin validar contraseña actual
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public String cambiarClaveAdmin(String usuario, String nueva) {
+        Usuarios user = usuariosRepository.findByUsuario(usuario);
+
+        if (user == null) {
+            return "Usuario no encontrado";
+        }
+
+        // NO valida contraseña actual
+        user.setClave(codificarClave.encode(nueva));
+        usuariosRepository.save(user);
+
+        return "Contraseña actualizada por admin";
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Lista todos los roles disponibles en el sistema
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public List<Rol> listarRoles() {
+        return rolRepository.findAll();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Registra un usuario desde el panel ADMIN - Valida duplicados, asigna rol, incripta clave
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public RegistroRespuesta registrarAdmin(RegistroSolicitud datos) {
+        Usuarios existente = usuariosRepository.findByUsuario(datos.getUsuario());
+        if (existente != null) {
+            return new RegistroRespuesta("El Usuario Ya Existe", null, null, null);
+        }
+        Rol rol = rolRepository.findById(datos.getRolId())
+                .orElse(null);
+
+        if (rol == null) {
+            return new RegistroRespuesta("Rol no válido", null, null, null);
+        }
+
+        Usuarios nuevo = new Usuarios();
+        nuevo.setUsuario(datos.getUsuario());
+        nuevo.setNombre(datos.getNombre());
+        nuevo.setClave(codificarClave.encode(datos.getClave()));
+        nuevo.setActivo(true);
+        nuevo.setRol(rol);
+
+        usuariosRepository.save(nuevo);
+
+        return new RegistroRespuesta(
+                "Usuario creado por admin correctamente",
+                nuevo.getUsuario(),
+                nuevo.getNombre(),
+                nuevo.getRol().getNombre()
+        );
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Elimina un usuario del sistema
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public void eliminarUsuario(String usuario) {
+        Usuarios user = usuariosRepository.findByUsuario(usuario);
+
+        if (user != null) {
+            usuariosRepository.delete(user);
+        }
+    }
 
 }
