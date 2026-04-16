@@ -8,6 +8,7 @@ import com.registro_y_iniciosesion_backend.autenticacion.RegistroSolicitud;
 import com.registro_y_iniciosesion_backend.entidades.Rol;
 import com.registro_y_iniciosesion_backend.repositorios.RolRepository;
 import com.registro_y_iniciosesion_backend.entidades.Usuarios;
+import com.registro_y_iniciosesion_backend.servicios.RolService;
 import com.registro_y_iniciosesion_backend.servicios.UsuariosService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +21,12 @@ import java.util.Map;
 public class UsuariosController {
 
     private final UsuariosService usuariosService;
+    private final RolService rolService;
 
     // Inyección del servicio mediante constructor
-    public UsuariosController(UsuariosService usuariosService) {
+    public UsuariosController(UsuariosService usuariosService, RolService rolService) {
         this.usuariosService = usuariosService;
+        this.rolService = rolService;
     }
 
     // Crear usuario (POST /usuarios)
@@ -96,11 +99,6 @@ public class UsuariosController {
         return usuariosService.actualizarUsuarioAdmin(usuario, datos);
     }
 
-    @GetMapping("/admin/roles")
-    public List<Rol> listarRoles() {
-        return usuariosService.listarRoles();
-    }
-
     //EDITAR USUARIO CONTRASEÑA
     @PutMapping("/admin/{usuario}/clave")
     public Map<String, String> cambiarClaveAdmin(@PathVariable String usuario, @RequestBody Map<String, String> datos) {
@@ -123,6 +121,28 @@ public class UsuariosController {
     public Map<String, String> eliminarUsuario(@PathVariable String usuario) {
         usuariosService.eliminarUsuario(usuario);
         return Map.of("mensaje", "Usuario eliminado correctamente");
+    }
+
+    //////////////////////////////////
+    ////////////// ROL ///////////////
+    //////////////////////////////////
+
+    //OBTENER ROL
+    @GetMapping("/admin/roles")
+    public List<Rol> listarRoles() {
+        return rolService.listarRoles();
+    }
+
+    //OBTENER CANTIDAD DE ROLES X USUARIO
+    @GetMapping("/admin/roles/{rolId}/cantidad")
+    public long contarUsuariosPorRol(@PathVariable Long rolId) {
+        return usuariosService.contarUsuarioPorRol(rolId);
+    }
+
+    //OBTENER INFORMACION USUARIO X ROL
+    @GetMapping("/admin/roles/{rolId}")
+    public List<Usuarios> obtenerUsuariosPorRol(@PathVariable Long rolId) {
+        return usuariosService.buscarUsuarioPorRol(rolId);
     }
 }
 

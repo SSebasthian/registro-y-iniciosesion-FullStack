@@ -15,7 +15,7 @@ import { registroRespuesta } from './../interface/registroRespuesta.interface';
 export class AutenticadorService {
 
   // URL base del backend donde están los endpoints de usuarios
-  private apiUrl = 'http://localhost:8080/usuarios';
+  private apiUrl = 'http://localhost:8080/';
 
   // Inyectamos HttpClient para poder hacer peticiones HTTP (POST, GET, etc.)
   constructor(private http: HttpClient) { }
@@ -31,7 +31,7 @@ export class AutenticadorService {
   inicioSesion(data: inicioSesionSolicitud): Observable<inicioSesionRespuesta> {
     // Envia una peticion POST a:
     // http://localhost:8080/usuarios/inicio-sesion
-    return this.http.post<inicioSesionRespuesta>(`${this.apiUrl}/inicio-sesion`, data);
+    return this.http.post<inicioSesionRespuesta>(`${this.apiUrl}usuarios/inicio-sesion`, data);
   }
 
 
@@ -45,7 +45,7 @@ export class AutenticadorService {
   registro(data: registroSolicitud): Observable<registroRespuesta> {
     // Envia una peticion POST a:
     // http://localhost:8080/usuarios/registrar
-    return this.http.post<registroRespuesta>(`${this.apiUrl}/registrar`, data);
+    return this.http.post<registroRespuesta>(`${this.apiUrl}usuarios/registrar`, data);
   }
 
 
@@ -66,7 +66,7 @@ export class AutenticadorService {
     const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
     // Se construye la petición GET hacia el backend
     // http://localhost:8080/usuarios/perfil/admin
-    return this.http.get(`${this.apiUrl}/perfil/${usuarioGuardado.usuario}`);
+    return this.http.get(`${this.apiUrl}usuarios/perfil/${usuarioGuardado.usuario}`);
   }
 
   // ----------------
@@ -86,7 +86,7 @@ export class AutenticadorService {
   // ACTUALIZAR PERFIL---
   // --------------------
   actualizarPerfil(usuario: string, datos: any) {
-    return this.http.put(`${this.apiUrl}/perfil/${usuario}`, datos);
+    return this.http.put(`${this.apiUrl}usuarios/perfil/${usuario}`, datos);
   }
 
   // -----------------
@@ -100,7 +100,7 @@ export class AutenticadorService {
   // CERRAR CLAVE PERFIL---
   // ----------------------
   cambiarClave(usuario: string, actual: string, nueva: string) {
-    return this.http.put(`${this.apiUrl}/perfil/${usuario}/clave`, {
+    return this.http.put(`${this.apiUrl}usuarios/perfil/${usuario}/clave`, {
       actual,
       nueva
     });
@@ -115,44 +115,70 @@ export class AutenticadorService {
   // OBTENER USUARIOS---
   // -------------------
   obtenerUsuariosAdmin(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/admin`);
+    return this.http.get<any[]>(`${this.apiUrl}usuarios/admin`);
   }
 
   // ----------------------
   // ACTUALZIAR USUARIOS---
   // ----------------------
   actualizarUsuariosAdmin(usuario: string, datos: any) {
-    return this.http.put(`${this.apiUrl}/admin/${usuario}`, datos);
+    return this.http.put(`${this.apiUrl}usuarios/admin/${usuario}`, datos);
   }
 
   // -------------------
   // CABMIAR USUARIOS---
   // -------------------
   cambiarClaveAdmin(usuario: string, nueva: string) {
-    return this.http.put(`${this.apiUrl}/admin/${usuario}/clave`, {
+    return this.http.put(`${this.apiUrl}usuarios/admin/${usuario}/clave`, {
       nueva
     });
-  }
-
-  // -------------------
-  // OBTENER ROLES------
-  // -------------------
-  obtenerRoles() {
-    return this.http.get<any[]>(`${this.apiUrl}/admin/roles`);
   }
 
   // ---------------------
   // REGISTRAR USUARIOS---
   // ---------------------
   registrarAdmin(data: any) {
-    return this.http.post<registroRespuesta>(`${this.apiUrl}/admin/registrar`, data);
+    return this.http.post<registroRespuesta>(`${this.apiUrl}usuarios/admin/registrar`, data);
   }
 
   // --------------------
   // ELIMINAR USUARIOS---
   // --------------------
   eliminarUsuarioAdmin(usuario: string) {
-    return this.http.delete(`${this.apiUrl}/admin/${usuario}`);
+    return this.http.delete(`${this.apiUrl}usuarios/admin/${usuario}`);
+  }
+
+
+  // -------------------
+  // OBTENER ROLES------
+  // -------------------
+  obtenerRoles() {
+    return this.http.get<any[]>(`${this.apiUrl}usuarios/admin/roles`);
+  }
+
+  // --------------------------
+  // OBTENER USUARIOS X ROL ---
+  // --------------------------
+  obtenerUsuariosPorRol(rolId: number) {
+    return this.http.get<any[]>(`${this.apiUrl}usuarios/admin/roles/${rolId}`);
+  }
+
+  contarUsuariosPorRol(rolId: number) {
+    return this.http.get<number>(`${this.apiUrl}usuarios/admin/roles/${rolId}/cantidad`);
+  }
+
+  actualizarRol(rolId: number, datos: any) {
+    return this.http.put<any>(`${this.apiUrl}roles/admin/${rolId}`, datos);
+  }
+
+  eliminarRol(id: number) {
+    return this.http.delete(`${this.apiUrl}roles/admin/${id}`,{
+      responseType: 'text'
+    });
+  }
+
+  crearRol(rol: any) {
+    return this.http.post(`${this.apiUrl}roles/admin/registrar`, rol);
   }
 
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon'
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,6 +7,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
+
 
 @Component({
   selector: 'app-permisos-rol',
@@ -14,45 +16,85 @@ import { MatDialogRef } from '@angular/material/dialog';
   templateUrl: './permisos-rol.component.html',
   styleUrl: './permisos-rol.component.css'
 })
-export class PermisosRolComponent {
-
-  constructor(private dialog: MatDialogRef<PermisosRolComponent>) { }
+export class PermisosRolComponent implements OnInit {
 
   filtro: string = '';
   rolSeleccionado: any = null;
   editando: boolean = false;
   modoCrearRol: boolean = false;
   verRolesxUsuarios: boolean = false;
+  roles: any[] = [];
   usuariosPorRol: any[] = [];
 
-  roles = [
-    {
-      nombre: 'Categoria A',
-      usuariosxRol: 3
-    },
-    {
-      nombre: 'Categoria B',
-      usuariosxRol: 10
-    },
-    {
-      nombre: 'Categoria C',
-      usuariosxRol: 4
-    },
-    {
-      nombre: 'Categoria D',
-      usuariosxRol: 5
-    }
-  ];
+  constructor(
+    private dialog: MatDialogRef<PermisosRolComponent>,
+    private autenticadorService: AutenticadorService
+  ) { }
+
+  ngOnInit() {
+    this.cargarRoles();
+  }
 
   nuevoRol: any = {
     nombre: ''
   };
 
 
+  cargarRoles() {
+    this.autenticadorService.obtenerRoles().subscribe({
+      next: (data) => {
+        this.roles = data;
+
+        // 🔥 traer conteo por cada rol
+        this.roles.forEach(rol => {
+          this.autenticadorService.contarUsuariosPorRol(rol.id)
+            .subscribe(count => {
+              rol.usuariosxRol = count;
+            });
+        });
+      }
+    });
+  }
+
+
   editarRol(rol: any) {
     this.rolSeleccionado = { ...rol };
     this.editando = true;
   }
+
+
+  guardarRol() {
+    this.autenticadorService.actualizarRol(
+      this.rolSeleccionado.id,
+      this.rolSeleccionado
+    ).subscribe({
+      next: (resp) => {
+        this.editando = false;
+        this.cargarRoles(); // refrescar lista
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+
+  eliminarRol(rol: any) {
+    if (!confirm(`¿Seguro que quieres eliminar el rol "${rol.nombre}"?`)) {
+      return;
+    }
+
+    this.autenticadorService.eliminarRol(rol.id).subscribe({
+      next: (mensaje: String) => {
+        alert(mensaje);
+        console.log(mensaje);
+        this.cargarRoles(); // refresca la lista
+      },
+      error: (err) => {
+        console.log("ERROR COMPLETO:", err);
+        alert("Error eliminando rol");
+      }
+    });
+  }
+
 
   crearRol() {
     this.modoCrearRol = true;
@@ -62,6 +104,33 @@ export class PermisosRolComponent {
       nombre: ''
     };
   }
+
+  crearNuevoRol() {
+    this.autenticadorService.crearRol(this.nuevoRol).subscribe({
+      next: (resp) => {
+        console.log('Rol creado:', resp);
+
+        this.modoCrearRol = false;
+        this.nuevoRol = { nombre: '' };
+
+        this.cargarRoles(); // refresca lista
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
+
+  //Buscar rol por nombre
+  get rolesFiltrados() {
+    if (!this.filtro) return this.roles;
+
+    return this.roles.filter(rol =>
+      rol.nombre.toLowerCase().includes(this.filtro.toLowerCase())
+    );
+  }
+
+
   volverListaRoles() {
     this.verRolesxUsuarios = false;
   }
@@ -73,16 +142,17 @@ export class PermisosRolComponent {
     this.modoCrearRol = false;
 
     this.rolSeleccionado = rol;
+    this.usuariosPorRol = [];
 
-    this.usuariosPorRol = [
-      { nombre: 'Juan Danuela Perez Martinez', usuario: 'juan', activo: true },
-      { nombre: 'Maria Lopez', usuario: 'maria', activo: true },
-      { nombre: 'Carlos Ruiz', usuario: 'carlos', activo: false },
-      { nombre: 'Maria Lopez', usuario: 'maria', activo: true },
-      { nombre: 'Carlos Ruiz', usuario: 'carlos', activo: false },
-      { nombre: 'Maria Lopez', usuario: 'maria', activo: true },
-      { nombre: 'Carlos Ruiz', usuario: 'carlos', activo: false }
-    ];
+    this.autenticadorService.obtenerUsuariosPorRol(rol.id).subscribe({
+      next: (datos) => {
+        this.usuariosPorRol = datos;
+      },
+      error: (err) => {
+        console.error(err);
+        this.usuariosPorRol = [];
+      }
+    })
 
   }
 

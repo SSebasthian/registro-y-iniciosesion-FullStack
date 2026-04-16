@@ -18,7 +18,7 @@
 
         <!-- LISTA DE ROLES -->
         <div class="lista" *ngIf="!editando && !modoCrearRol && !verRolesxUsuarios">
-            <div class="rol-item" *ngFor="let rol of roles">
+            <div class="rol-item" *ngFor="let rol of rolesFiltrados">
 
                 <div class="info">
                     <span class="nombre">{{ rol.nombre }}</span>
@@ -34,7 +34,7 @@
                         <mat-icon>edit</mat-icon>
                     </a>
 
-                    <a class="eliminar">
+                    <a class="eliminar" (click)="eliminarRol(rol)">
                         <mat-icon>delete</mat-icon>
                     </a>
                 </div>
@@ -48,7 +48,7 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Rol</mat-label>
-                    <input matInput [value]="rolSeleccionado.nombre">
+                    <input matInput [(ngModel)]="rolSeleccionado.nombre">
                 </mat-form-field>
 
             </div>
@@ -110,13 +110,13 @@
             </a>
 
             <!-- CREAR NUEVO -->
-            <a *ngIf="modoCrearRol">
+            <a *ngIf="modoCrearRol" (click)="crearNuevoRol()">
                 <mat-icon>done_all</mat-icon>
                 Guardar rol
             </a>
 
             <!-- EDITAR -->
-            <a *ngIf="editando">
+            <a *ngIf="editando" (click)="guardarRol()">
                 <mat-icon>save</mat-icon>
                 Guardar
             </a>

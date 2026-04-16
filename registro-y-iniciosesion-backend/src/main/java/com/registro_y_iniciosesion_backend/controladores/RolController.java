@@ -23,23 +23,66 @@ public class RolController {
         this.permisosService = permisosService;
     }
 
+    // Listar todos los permisos (GET /permisos)
+    @GetMapping("/admin")
+    public List<Rol> listarRoles() {
+        return rolService.listarRoles();
+    }
+
+    // Editar Rol
+    @PutMapping("/admin/{id}")
+    public Rol editarRol(@PathVariable Long id, @RequestBody Rol datos) {
+        Rol rol = rolService.buscarPorId(id);
+        if (rol == null) return null;
+        rol.setNombre(datos.getNombre());
+        return rolService.crear(rol);
+    }
+
+    //Eliminar Rol
+    @DeleteMapping("/admin/{id}")
+    public String  eliminarRol(@PathVariable Long id) {
+        return rolService.eliminarRol(id);
+    }
+
     // Crear un rol (POST /roles)
-    @PostMapping
+    @PostMapping("/admin/registrar")
     public Rol crearRol(@RequestBody Rol rol) {
         return rolService.crear(rol);
     }
 
-    // Listar todos los permisos (GET /permisos)
-    @GetMapping
-    public List<Rol> listarRoles() {
-        return rolService.listar();
-    }
+
+
+
 
     // Buscar un permiso por ID (GET /permisos/{id})
-    @GetMapping("/{id}")
+    @GetMapping("/admin/{rolId}")
     public Rol buscarPorId(@PathVariable Long id) {
         return rolService.buscarPorId(id);
     }
+
+
+
+
+
+
+
+
+    //Filtrar x Nombre
+    //@GetMapping("admin/buscar")
+    //public List<Rol> buscar(@RequestParam String nombre) {
+    //    return rolService.buscarPorNombre(nombre);
+    //}
+
+
+
+
+
+
+
+
+
+
+
 
     // Agregar un permiso a un rol
     @PostMapping("/{idRol}/agregar-permiso/{idPermiso}")

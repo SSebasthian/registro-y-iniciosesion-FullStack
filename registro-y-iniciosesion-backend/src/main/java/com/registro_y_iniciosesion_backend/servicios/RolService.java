@@ -3,6 +3,7 @@ package com.registro_y_iniciosesion_backend.servicios;
 import com.registro_y_iniciosesion_backend.entidades.Permisos;
 import com.registro_y_iniciosesion_backend.entidades.Rol;
 import com.registro_y_iniciosesion_backend.repositorios.RolRepository;
+import com.registro_y_iniciosesion_backend.repositorios.UsuariosRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,16 +12,47 @@ import java.util.List;
 public class RolService {
 
     private final RolRepository rolRepository;
+    private final UsuariosRepository usuariosRepository;
 
     // Inyección del repositorio mediante el constructor
-    public RolService(RolRepository rolRepository) {
+    public RolService(
+            RolRepository rolRepository,
+            UsuariosRepository usuariosRepository
+    ) {
         this.rolRepository = rolRepository;
+        this.usuariosRepository = usuariosRepository;
     }
 
-    // Crear o guardar un rol
+    // Listar todos los roles existentes
+    public List<Rol> listarRoles() {
+        return rolRepository.findAll();
+    }
+
+    // Buscar un rol por su ID //SE PUEDE EDITAR ELIMINAR ETC
+    public Rol buscarPorId(Long id) {
+        return rolRepository.findById(id).orElse(null);
+    }
+
+    // Crear o editar un rol
     public Rol crear(Rol rol) {
         return rolRepository.save(rol);
     }
+
+
+    //Eliminar rol , si existe usuario con rol (SE BLOQUEA , NO PERMITE)
+    public String eliminarRol(Long id) {
+        boolean tieneUsuarios = usuariosRepository.existsByRol_Id(id);
+
+        if (tieneUsuarios) {
+            return "No se puede eliminar: hay usuarios con este rol";
+        }
+
+        rolRepository.deleteById(id);
+        return "Rol eliminado correctamente";
+    }
+
+
+
 
     // Agregar un permiso al rol (relación ManyToMany)
     public Rol agregarPermiso(Rol rol, Permisos permiso) {
@@ -28,13 +60,6 @@ public class RolService {
         return rolRepository.save(rol);      // se guarda el rol actualizado
     }
 
-    // Listar todos los roles existentes
-    public List<Rol> listar() {
-        return rolRepository.findAll();
-    }
 
-    // Buscar un rol por su ID
-    public Rol buscarPorId(Long id) {
-        return rolRepository.findById(id).orElse(null);
-    }
+
 }
