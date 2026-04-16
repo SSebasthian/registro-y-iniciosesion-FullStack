@@ -1,1 +1,138 @@
-<p>permisos-permisos works!</p>
+<div class="permiso-dialog">
+
+    <div class="cabezera">
+        <div class="titulo">
+            <mat-icon>select_all</mat-icon>
+            <h2>
+                {{
+                modoCrearPermiso ? 'Crear permiso' :
+                editando ? 'Editar permiso' :
+                verPermisosxUsuarios ? 'Usuarios x Permiso':
+                'Permisos'
+                }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="listar-permisos">
+
+
+        <!-- LISTA DE PERMISOS -->
+        <div class="lista" *ngIf="!editando && !modoCrearPermiso && !verPermisosxUsuarios">
+            <div class="item" *ngFor="let permiso of permisos">
+
+                <div class="info">
+                    <span class="nombre">{{ permiso.nombre }}</span>
+                </div>
+
+                <div class="cantidad" (click)="cantidadUsuariosPermiso(permiso)">
+                    <span class="nombre-cantidad">En Uso:</span>
+                    <span class="permiso-cantidad">{{ permiso.usuariosxPermiso }}</span>
+                </div>
+
+                <div class="acciones">
+                    <a class="editar" (click)="editarPermiso(permiso)">
+                        <mat-icon>edit</mat-icon>
+                    </a>
+
+                    <a class="eliminar">
+                        <mat-icon>delete</mat-icon>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+         <!-- EDITAR USUARIO -->
+        <div class="editar-permiso" *ngIf="editando">
+            <div class="form-grid">
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Permiso</mat-label>
+                    <input matInput [value]="permisoSeleccionado.nombre">
+                </mat-form-field>
+
+            </div>
+        </div>
+
+        <!-- CREAR USUARIO -->
+        <div class="crear-permiso" *ngIf="modoCrearPermiso">
+            <mat-dialog-content class="form-grid">
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput [(ngModel)]="nuevoPermiso.nombre" required>
+                </mat-form-field>
+
+            </mat-dialog-content>
+        </div>
+
+         <!-- VER ROLES POR USUARIO -->
+        <div class="usuarioxpermiso" *ngIf="verPermisosxUsuarios">
+            <div class="usuario-item" *ngFor="let usuarios of usuariosPorPermiso">
+
+                <div class="info">
+                    <span class="nombre">{{ usuarios.nombre }}</span>
+                    <span class="usuario">{{ usuarios.usuario }}</span>
+                </div>
+
+                <div class="estado">
+                    <span [class.activo]="usuarios.activo" [class.inactivo]="!usuarios.activo">
+                        {{ usuarios.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="sin-usuarios" *ngIf="usuariosPorPermiso.length === 0">
+                <mat-icon>info</mat-icon>
+                <span>No hay usuarios con este permiso</span>
+            </div>
+        </div>
+
+
+         <!--  ACCION BUSCAR, CREAR, CERRAR -->
+        <div class="acciones-permisos">
+            <!-- BUSCAR SOLO EN LISTA -->
+            <div class="buscador" *ngIf="!editando && !modoCrearPermiso && !verPermisosxUsuarios">
+                <span class="icono">
+                    <mat-icon>search</mat-icon>
+                </span>
+                <input type="text" placeholder="Buscar Permiso" [(ngModel)]="filtro">
+            </div>
+
+            <!-- LISTA -->
+            <a *ngIf="!editando && !modoCrearPermiso && !verPermisosxUsuarios" (click)="crearPermiso()">
+                <mat-icon>control_point</mat-icon>
+                Crear
+            </a>
+
+            <!-- CREAR NUEVO -->
+            <a *ngIf="modoCrearPermiso">
+                <mat-icon>done_all</mat-icon>
+                Guardar permiso
+            </a>
+
+            <!-- EDITAR -->
+            <a *ngIf="editando">
+                <mat-icon>save</mat-icon>
+                Guardar
+            </a>
+
+            <!-- VOLVER -->
+            <a *ngIf="verPermisosxUsuarios" (click)="volverListaPermisos()">
+                <mat-icon>keyboard_backspace</mat-icon>
+                Volver
+            </a>
+
+            <!-- CANCELAR / CERRAR -->
+            <a (click)="accionCancelar()">
+                <mat-icon>
+                    {{ (!editando && !modoCrearPermiso) ? 'close' : 'cancel' }}
+                </mat-icon>
+                {{ (editando || modoCrearPermiso) ? 'Cancelar' : 'Cerrar' }}
+            </a>
+        </div>
+    </div>
+
+
+</div>
