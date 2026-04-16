@@ -1,1 +1,139 @@
-<p>permisos-rol works!</p>
+<div class="rol-dialog">
+    <div class="cabezera">
+        <div class="titulo">
+            <mat-icon>category</mat-icon>
+            <h2>
+                {{
+                modoCrearRol ? 'Crear rol' :
+                editando ? 'Editar rol' :
+                verRolesxUsuarios ? 'Usuarios x Rol':
+                'Roles'
+                }}
+            </h2>
+        </div>
+    </div>
+
+
+    <div class="listar-roles">
+
+        <!-- LISTA DE ROLES -->
+        <div class="lista" *ngIf="!editando && !modoCrearRol && !verRolesxUsuarios">
+            <div class="rol-item" *ngFor="let rol of roles">
+
+                <div class="info">
+                    <span class="nombre">{{ rol.nombre }}</span>
+                </div>
+
+                <div class="cantidad" (click)="cantidadUsuariosRol(rol)">
+                    <span class="nombre-cantidad">En Uso:</span>
+                    <span class="rol-cantidad">{{ rol.usuariosxRol }}</span>
+                </div>
+
+                <div class="acciones">
+                    <a class="editar" (click)="editarRol(rol)">
+                        <mat-icon>edit</mat-icon>
+                    </a>
+
+                    <a class="eliminar">
+                        <mat-icon>delete</mat-icon>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- EDITAR USUARIO -->
+        <div class="editar-rol" *ngIf="editando">
+            <div class="form-grid">
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Rol</mat-label>
+                    <input matInput [value]="rolSeleccionado.nombre">
+                </mat-form-field>
+
+            </div>
+        </div>
+
+        <!-- CREAR USUARIO -->
+
+        <div class="crear-rol" *ngIf="modoCrearRol">
+
+            <mat-dialog-content class="form-grid">
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput [(ngModel)]="nuevoRol.nombre" required>
+                </mat-form-field>
+
+            </mat-dialog-content>
+
+        </div>
+
+        <!-- VER ROLES POR USUARIO -->
+        <div class="editar-usuario-clave" *ngIf="verRolesxUsuarios">
+            <div class="usuario-item" *ngFor="let user of usuariosPorRol">
+
+                <div class="info">
+                    <span class="nombre">{{ user.nombre }}</span>
+                    <span class="usuario">{{ user.usuario }}</span>
+                </div>
+
+                <div class="estado">
+                    <span [class.activo]="user.activo" [class.inactivo]="!user.activo">
+                        {{ user.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="sin-usuarios" *ngIf="usuariosPorRol.length === 0">
+                <mat-icon>info</mat-icon>
+                <span>No hay usuarios con este rol</span>
+            </div>
+
+        </div>
+
+        <!--  ACCION BUSCAR, CREAR, CERRAR -->
+        <div class="acciones-roles">
+            <!-- BUSCAR SOLO EN LISTA -->
+            <div class="buscador" *ngIf="!editando && !modoCrearRol && !verRolesxUsuarios">
+                <span class="icono">
+                    <mat-icon>search</mat-icon>
+                </span>
+                <input type="text" placeholder="Buscar Rol" [(ngModel)]="filtro">
+            </div>
+
+            <!-- LISTA -->
+            <a *ngIf="!editando && !modoCrearRol && !verRolesxUsuarios" (click)="crearRol()">
+                <mat-icon>control_point</mat-icon>
+                Crear
+            </a>
+
+            <!-- CREAR NUEVO -->
+            <a *ngIf="modoCrearRol">
+                <mat-icon>done_all</mat-icon>
+                Guardar rol
+            </a>
+
+            <!-- EDITAR -->
+            <a *ngIf="editando">
+                <mat-icon>save</mat-icon>
+                Guardar
+            </a>
+
+            <!-- VOLVER -->
+            <a *ngIf="verRolesxUsuarios" (click)="volverListaRoles()">
+                <mat-icon>keyboard_backspace</mat-icon>
+                Volver
+            </a>
+
+            <!-- CANCELAR / CERRAR -->
+            <a (click)="accionCancelar()">
+                <mat-icon>
+                    {{ (!editando && !modoCrearRol) ? 'close' : 'cancel' }}
+                </mat-icon>
+                {{ (editando || modoCrearRol) ? 'Cancelar' : 'Cerrar' }}
+            </a>
+
+        </div>
+    </div>
