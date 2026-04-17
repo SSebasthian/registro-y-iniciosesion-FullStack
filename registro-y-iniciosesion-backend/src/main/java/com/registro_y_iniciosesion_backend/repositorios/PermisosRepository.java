@@ -2,6 +2,9 @@ package com.registro_y_iniciosesion_backend.repositorios;
 
 import com.registro_y_iniciosesion_backend.entidades.Permisos;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 // --------------------------------------------------------
 // Esta interfaz es el repositorio encargado de acceder a la tabla
@@ -14,5 +17,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface PermisosRepository extends JpaRepository<Permisos,Long> {
-
+    @Query("SELECT p FROM Permisos p ORDER BY p.id ASC")
+    List<Permisos> findAllByOrderByIdAsc();
 }

@@ -22,7 +22,15 @@
             <div class="item" *ngFor="let permiso of permisos">
 
                 <div class="info">
-                    <span class="nombre">{{ permiso.nombre }}</span>
+                    <div class="campo">
+                        <span class="label">Modulo</span>
+                        <span class="valor">{{ permiso.modulo | titlecase }}</span>
+                    </div>
+
+                    <div class="campo">
+                        <span class="label">Accion</span>
+                        <span class="valor">{{ permiso.accion | titlecase }}</span>
+                    </div>
                 </div>
 
                 <div class="cantidad" (click)="cantidadUsuariosPermiso(permiso)">
@@ -42,13 +50,18 @@
             </div>
         </div>
 
-         <!-- EDITAR USUARIO -->
+        <!-- EDITAR USUARIO -->
         <div class="editar-permiso" *ngIf="editando">
             <div class="form-grid">
 
                 <mat-form-field appearance="outline">
-                    <mat-label>Permiso</mat-label>
-                    <input matInput [value]="permisoSeleccionado.nombre">
+                    <mat-label>Modulo</mat-label>
+                    <input matInput [value]="permisoSeleccionado.modulo">
+                </mat-form-field>
+
+                 <mat-form-field appearance="outline">
+                    <mat-label>Accion</mat-label>
+                    <input matInput [value]="permisoSeleccionado.accion">
                 </mat-form-field>
 
             </div>
@@ -66,7 +79,7 @@
             </mat-dialog-content>
         </div>
 
-         <!-- VER ROLES POR USUARIO -->
+        <!-- VER ROLES POR USUARIO -->
         <div class="usuarioxpermiso" *ngIf="verPermisosxUsuarios">
             <div class="usuario-item" *ngFor="let usuarios of usuariosPorPermiso">
 
@@ -90,14 +103,14 @@
         </div>
 
 
-         <!--  ACCION BUSCAR, CREAR, CERRAR -->
+        <!--  ACCION BUSCAR, CREAR, CERRAR -->
         <div class="acciones-permisos">
             <!-- BUSCAR SOLO EN LISTA -->
             <div class="buscador" *ngIf="!editando && !modoCrearPermiso && !verPermisosxUsuarios">
                 <span class="icono">
                     <mat-icon>search</mat-icon>
                 </span>
-                <input type="text" placeholder="Buscar Permiso" [(ngModel)]="filtro">
+                <input type="text" placeholder="Modulo y/o Accion" [(ngModel)]="filtro">
             </div>
 
             <!-- LISTA -->

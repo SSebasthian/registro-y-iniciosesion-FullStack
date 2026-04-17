@@ -22,51 +22,25 @@ export class PermisosPermisosComponent {
   filtro: string = '';
   permisoSeleccionado: any = null;
   editando: boolean = false;
+  permisoEditado: any = null;
   modoCrearPermiso: boolean = false;
   verPermisosxUsuarios: boolean = false;
   usuariosPorPermiso: any[] = [];
   
 
   permisos = [
-    {
-      id: 1,
-      nombre: 'ver_usuarios',
-      usuariosxPermiso: 3
-    },
-    {
-      id: 2,
-      nombre: 'crear_usuarios',
-      usuariosxPermiso: 10
-    },
-    {
-      id: 3,
-      nombre: 'editar_usuarios',
-      usuariosxPermiso: 4
-    },
-    {
-      id: 4,
-      nombre: 'eliminar_usuarios',
-      usuariosxPermiso: 5
-    },
-    {
-      id: 5,
-      nombre: 'ver_rol',
-      usuariosxPermiso: 10
-    },
-    {
-      id: 6,
-      nombre: 'crear_rol',
-      usuariosxPermiso: 4
-    },
-    {
-      id: 7,
-      nombre: 'editar_rol',
-      usuariosxPermiso: 5
-    }
-  ];
+  { id: 1, modulo: 'usuarios', accion: 'ver', usuariosxPermiso: 0 },
+  { id: 2, modulo: 'usuarios', accion: 'crear', usuariosxPermiso: 10 },
+  { id: 3, modulo: 'usuarios', accion: 'editar', usuariosxPermiso: 4 },
+  { id: 4, modulo: 'usuarios', accion: 'eliminar', usuariosxPermiso: 5 },
+  { id: 5, modulo: 'rol', accion: 'ver', usuariosxPermiso: 10 },
+  { id: 6, modulo: 'rol', accion: 'crear', usuariosxPermiso: 4 },
+  { id: 7, modulo: 'rol', accion: 'editar', usuariosxPermiso: 2 },
+];
 
   nuevoPermiso: any = {
-    nombre: ''
+    modulo: '',
+    accion: ''
   };
 
   editarPermiso(permiso: any) {

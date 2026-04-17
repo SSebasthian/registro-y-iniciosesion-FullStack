@@ -11,6 +11,8 @@ public class PermisosService {
 
     private final PermisosRepository permisosRepository;
 
+
+
     // Inyección del repositorio mediante el constructor
     public PermisosService(PermisosRepository permisosRepository) {
         this.permisosRepository = permisosRepository;
@@ -23,7 +25,7 @@ public class PermisosService {
 
     // Listar todos los permisos
     public List<Permisos> listar() {
-        return permisosRepository.findAll();
+        return permisosRepository.findAllByOrderByIdAsc();
     }
 
     // Buscar un permiso por su ID

@@ -55,29 +55,21 @@
 
 .tarjeta__permisos {
   margin-top: 15px;
+
 }
 
-.tarjeta__permisos .permisos {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  justify-content: center;
-  gap: 12px 15px;
-  padding: 0;
-  padding-left: 5px;
-  margin-top: 8px;
+.tarjeta__permisos hr{
+  width: 320px;
+  margin-left: -50px;
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #9ca0e6, transparent);
 }
-
-.tarjeta__permisos .permisos li {
-  list-style: none;
-  background: #ffffff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: 0.2s;
+.tarjeta__permisos p{
+  padding-bottom: 5px;
+  font-weight: 600;
+    color: #393e7f;
+    font-size: 18px;
 }
 
 
@@ -187,9 +179,13 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-left: -490px;
+    margin-left: -530px;
 }
 
+
+/* BOTONES DE ACCIÓN */
+
+/* BOTONES ACCIONES PERFIL */
 .btn-accion{
     background: #393e7f;
     color: white;
@@ -202,4 +198,90 @@
     box-shadow: 
       3px 10px 25px rgba(0, 0, 0, .18),
       3px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+
+
+/* BOTONES PERMISOS */
+.modulos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px 10px; 
+  margin-top: -10px;
+  margin-left: -72px;
+  width: 370px;
+  align-content: flex-start;
+}
+
+.modulos .btn {
+  font: inherit;
+  background-color: #f0f0f0;
+  border: 0;
+  color: #242424;
+  font-size: 13px;
+  padding: 0.5em 1em;
+  text-shadow: 0 .0625em 0 #fff;
+  box-shadow:
+    inset 0 0.0625em 0 0 #f4f4f4,
+    0 0.0625em 0 0 #efefef,
+    0 0.125em 0 0 #ececec,
+    0 0.25em 0 0 #e0e0e0,
+    0 0.3125em 0 0 #dedede,
+    0 0.375em 0 0 #dcdcdc,
+    0 0.425em 0 0 #cacaca,
+    0 0.425em 0.5em 0 #cecece;
+
+  transition: 0.23s ease;
+  cursor: pointer;
+  font-weight: bold;
+  margin: -1px;
+  
+}
+.modulos .btn:active {
+  translate: 0 0.225em;
+  box-shadow:
+    inset 0 0.03em 0 0 #f4f4f4,
+    0 0.03em 0 0 #efefef,
+    0 0.0625em 0 0 #ececec,
+    0 0.125em 0 0 #e0e0e0,
+    0 0.125em 0 0 #dedede,
+    0 0.2em 0 0 #dcdcdc,
+    0 0.225em 0 0 #cacaca,
+    0 0.225em 0.375em 0 #cecece;
+
+  color: #7f83c7;
+  text-decoration: underline;
+}
+
+.modulos .btn.active {
+  color: #393e7f;
+  text-decoration: underline;
+}
+
+/* ACCIONES */
+
+.acciones{
+  width: 310px;
+  height: 180px;
+  margin-top: 30px;
+  margin-left: -40px;
+  border-radius: 10px;
+  box-shadow: inset 8px 8px 10px #c3c3c3,
+            inset -8px -8px 10px #cfcfcf;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.acciones-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.nombre-accion {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2f2f2f;
+  text-align: left;
+  margin: 10px 0 10px 30px;
 }

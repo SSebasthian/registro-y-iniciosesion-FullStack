@@ -23,6 +23,13 @@ export class PerfilComponent {
 
   // Variable donde se almacenan los datos del usuario
   Usuario: any;
+  permisosAgrupados: { [key: string]: any[] } = {};
+  moduloSeleccionado: string = '';
+  accionesFiltradas: any[] = [];
+  modulosUnicos: string[] = [];
+
+
+
 
   // Inyección del servicio que se conecta con el backend
   constructor(
@@ -33,6 +40,7 @@ export class PerfilComponent {
 
   // Método que se ejecuta al cargar el componente
   ngOnInit() {
+
 
     // 1. Verificar si hay sesión
     const usuario = localStorage.getItem('usuario');
@@ -47,9 +55,11 @@ export class PerfilComponent {
     // Se llama al servicio para obtener el perfil del usuario
     this.autenticadorService.getPerfil().subscribe({
 
+
       // Si la petición es exitosa
       next: (datos) => {
         this.Usuario = datos; // Guardamos los datos
+        this.agruparPermisos(); // Agrupamos los permisos por módulo
         //console.log(datos); // Mostramos en consola
       },
       error: (err) => {
@@ -87,7 +97,7 @@ export class PerfilComponent {
 
     dialogRef.afterClosed().subscribe((resultado) => {
 
-      // 👇 Si el dialog devolvió true → recargar perfil
+      // Si el dialog devolvió true → recargar perfil
       if (resultado) {
         this.cargarPerfil();
       }
@@ -128,6 +138,7 @@ export class PerfilComponent {
     this.autenticadorService.getPerfil().subscribe({
       next: (datos) => {
         this.Usuario = datos;
+        this.agruparPermisos();
       },
       error: (err) => {
         console.error(err);
@@ -135,6 +146,53 @@ export class PerfilComponent {
       }
     });
   }
+
+
+  agruparPermisos() {
+    const permisos = this.Usuario?.rol?.permisos || [];
+
+    //ORDENAR PRIMERO POR ID
+    permisos.sort((a: any, b: any) => a.id - b.id);
+
+    this.permisosAgrupados = permisos.reduce((acc: any, permiso: any) => {
+
+      if (!acc[permiso.modulo]) {
+        acc[permiso.modulo] = [];
+      }
+
+      acc[permiso.modulo].push(permiso);
+
+      return acc;
+    }, {});
+    // módulos únicos
+    this.modulosUnicos = Object.keys(this.permisosAgrupados);
+
+    // seleccionar primero automáticamente
+    if (this.modulosUnicos.length > 0) {
+      this.seleccionarModulo(this.modulosUnicos[0]);
+    }
+  }
+
+  seleccionarModulo(modulo: string) {
+    this.moduloSeleccionado = modulo;
+
+    const lista = this.permisosAgrupados[modulo] || [];
+
+    // ordenar acciones por id también
+    this.accionesFiltradas = lista
+      .sort((a: any, b: any) => a.id - b.id)
+      .map((p: any) => p.accion);
+  }
+
+  ordenarModulos = (a: any, b: any): number => {
+    const aMin = Math.min(...a.value.map((x: any) => x.id));
+    const bMin = Math.min(...b.value.map((x: any) => x.id));
+
+    return aMin - bMin;
+  };
+
+
 }
+
 
 

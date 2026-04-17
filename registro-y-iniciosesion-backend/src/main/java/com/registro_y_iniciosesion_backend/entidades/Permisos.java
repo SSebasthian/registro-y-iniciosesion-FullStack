@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity                             // Indica que esta clase es una entidad (tabla en la base de datos)
-@Table(name = "permisos")           // Nombre real de la tabla en la base de datos
+@Table(name = "permisos",          // Nombre real de la tabla en la base de datos
+        uniqueConstraints = @UniqueConstraint(columnNames = {"modulo", "accion"}))  // Esto evita que tengas duplicados como: usuarios.ver - usuarios.ver
 @Data                               // Genera Automaticamente getters, setters, toString, equals y hashCode
 public class Permisos {
 
@@ -12,6 +13,9 @@ public class Permisos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)         // MySQL generará el ID automáticamente (auto-increment)
     private Long id;
 
-    @Column(nullable = false, unique = true)                    // Nombre del permiso, no puede ser nulo y debe ser único
-    private String nombre;
+    @Column(nullable = false)
+    private String modulo;
+
+    @Column(nullable = false)
+    private String accion;
 }
