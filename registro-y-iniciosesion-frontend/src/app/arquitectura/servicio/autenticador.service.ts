@@ -153,7 +153,7 @@ export class AutenticadorService {
   // OBTENER ROLES------
   // -------------------
   obtenerRoles() {
-    return this.http.get<any[]>(`${this.apiUrl}usuarios/admin/roles`);
+    return this.http.get<any[]>(`${this.apiUrl}roles/admin`);
   }
 
   // --------------------------
@@ -172,7 +172,7 @@ export class AutenticadorService {
   }
 
   eliminarRol(id: number) {
-    return this.http.delete(`${this.apiUrl}roles/admin/${id}`,{
+    return this.http.delete(`${this.apiUrl}roles/admin/${id}`, {
       responseType: 'text'
     });
   }
@@ -182,4 +182,57 @@ export class AutenticadorService {
   }
 
 
+
+  // -------------------
+  // OBTENER PERMISOS------
+  // -------------------
+  obtenerPermisos() {
+    return this.http.get<any[]>(`${this.apiUrl}permisos/admin`);
+  }
+
+  // --------------------------
+  // OBTENER USUARIOS X PERMISO ---
+  // --------------------------
+
+
+
+  actualizarPermiso(permisoId: number, datos: any) {
+    return this.http.put<any>(`${this.apiUrl}permisos/admin/${permisoId}`, datos);
+  }
+
+  eliminarPermiso(id: number) {
+    return this.http.delete(`${this.apiUrl}permisos/admin/${id}`, {
+      responseType: 'text'
+    });
+  }
+
+  crearPermiso(permiso: any) {
+    return this.http.post(`${this.apiUrl}permisos/admin/registrar`, permiso);
+  }
+
+
+  obtenerRolesPorPermiso(permisoId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}permisos/admin/${permisoId}/roles`);
+  }
+
+
+  // Obtener módulos únicos
+  obtenerModulos(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}permisos/admin/modulos`);
+  }
+
+  // Obtener acciones por módulo
+  obtenerAccionesPorModulo(modulo: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}permisos/admin/modulos/${modulo}/acciones`);
+  }
+
+  // Verificar si existe un permiso
+  verificarPermiso(modulo: string, accion: string): Observable<{ existe: boolean }> {
+    return this.http.get<{ existe: boolean }>(`${this.apiUrl}permisos/admin/existe?modulo=${modulo}&accion=${accion}`);
+  }
+
+  // Crear permiso solo si no existe
+  crearPermisoSiNoExiste(permiso: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}permisos/admin/crear-si-no-existe`, permiso);
+  }
 }

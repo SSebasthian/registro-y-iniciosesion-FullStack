@@ -8,6 +8,7 @@ import com.registro_y_iniciosesion_backend.autenticacion.RegistroSolicitud;
 import com.registro_y_iniciosesion_backend.entidades.Rol;
 import com.registro_y_iniciosesion_backend.repositorios.RolRepository;
 import com.registro_y_iniciosesion_backend.entidades.Usuarios;
+import com.registro_y_iniciosesion_backend.servicios.PermisosService;
 import com.registro_y_iniciosesion_backend.servicios.RolService;
 import com.registro_y_iniciosesion_backend.servicios.UsuariosService;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,13 @@ public class UsuariosController {
 
     private final UsuariosService usuariosService;
     private final RolService rolService;
+    private final PermisosService permisosService;
 
     // Inyección del servicio mediante constructor
-    public UsuariosController(UsuariosService usuariosService, RolService rolService) {
+    public UsuariosController(UsuariosService usuariosService, RolService rolService, PermisosService permisosService) {
         this.usuariosService = usuariosService;
         this.rolService = rolService;
+        this.permisosService = permisosService;
     }
 
     // Crear usuario (POST /usuarios)
@@ -144,6 +147,11 @@ public class UsuariosController {
     public List<Usuarios> obtenerUsuariosPorRol(@PathVariable Long rolId) {
         return usuariosService.buscarUsuarioPorRol(rolId);
     }
+
+    //////////////////////////////////
+    //////////// PERMISO /////////////
+    //////////////////////////////////
+
 }
 
 

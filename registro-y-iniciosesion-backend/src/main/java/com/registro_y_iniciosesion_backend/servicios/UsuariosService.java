@@ -267,9 +267,6 @@ public class UsuariosService {
     /// //// OBTENER USUARIOS POR ROL    ///////
     /// ////////////////////////////////////////
 
-    public List<Usuarios> obtenerUsuariosPorRol(Long rolId) {
-        return usuariosRepository.findByRol_Id(rolId);
-    }
 
     public long contarUsuarioPorRol(Long rolId) {
         return usuariosRepository.countByRolId(rolId);
@@ -278,8 +275,5 @@ public class UsuariosService {
     public List<Usuarios> buscarUsuarioPorRol(Long rolId) {
         return usuariosRepository.findByRolId(rolId);
     }
-
-
-
 
 }

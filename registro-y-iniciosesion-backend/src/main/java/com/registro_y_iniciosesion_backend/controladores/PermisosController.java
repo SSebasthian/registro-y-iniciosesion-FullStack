@@ -4,6 +4,7 @@ import com.registro_y_iniciosesion_backend.entidades.Permisos;
 import com.registro_y_iniciosesion_backend.servicios.PermisosService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -13,29 +14,80 @@ public class PermisosController {
     private final PermisosService permisosService;
 
     // Inyección del servicio mediante constructor
-    public PermisosController(PermisosService permisosService) {
+    public PermisosController(PermisosService permisosService){
         this.permisosService = permisosService;
     }
 
-    // Crear un permiso (POST /permisos)
-    @PostMapping
-    // @RequestBody: indica que Spring debe tomar los datos del JSON del cuerpo de la petición
-    public Permisos crearPermiso(@RequestBody Permisos permiso) {
-        return permisosService.crear(permiso);
+    // Listar todos los permisos (GET /permisos)
+    @GetMapping("/admin")
+    public List<Permisos> listarPermisos() {
+        return permisosService.listarPermisosConCantidadUsuarios();
     }
 
-    // Listar todos los permisos (GET /permisos)
-    @GetMapping
-    public List<Permisos> listarPermisos() {
-        return permisosService.listar();
+    // Editar Permiso
+    @PutMapping("/admin/{id}")
+    public Permisos editarPermisos(@PathVariable Long id, @RequestBody Permisos datos) {
+        Permisos permisos = permisosService.buscarPorId(id);
+        if (permisos == null) return null;
+        permisos.setModulo(datos.getModulo());
+        permisos.setAccion(datos.getAccion());
+        return permisosService.crear(permisos);
     }
+
+    //Eliminar Permiso
+    @DeleteMapping("/admin/{id}")
+    public String  eliminarPermisos(@PathVariable Long id) {
+        return permisosService.eliminarPermiso(id);
+    }
+
+
+    // Crear un rol (POST /roles)
+    @PostMapping("/admin/registrar")
+    public Permisos crearPermiso(@RequestBody Permisos permisos) {
+        return permisosService.crear(permisos);
+    }
+
 
     // Buscar un permiso por ID (GET /permisos/{id})
-    @GetMapping("/{id}")
-    // @PathVariable: indica que el valor de {id} en la URL se asigna al parámetro id
+    @GetMapping("/admin/{rolId}")
     public Permisos buscarPorId(@PathVariable Long id) {
         return permisosService.buscarPorId(id);
     }
+
+
+    //TRAER PERMISOS X ROL
+
+    @GetMapping("/admin/{permisoId}/roles")
+    public List<Map<String, Object>> obtenerRolesPorPermiso(@PathVariable Long permisoId) {
+        return permisosService.obtenerRolesPorPermiso(permisoId);
+    }
+
+    // Obtener todos los módulos únicos
+    @GetMapping("/admin/modulos")
+    public List<String> listarModulos() {
+        return permisosService.listarModulosUnicos();
+    }
+
+    @GetMapping("/admin/modulos/{modulo}/acciones")
+    public List<String> listarAccionesPorModulo(@PathVariable String modulo) {
+        return permisosService.listarAccionesPorModulo(modulo);
+    }
+
+    // Verificar si un permiso existe
+    @GetMapping("/admin/existe")
+    public Map<String, Boolean> verificarPermiso(
+            @RequestParam String modulo,
+            @RequestParam String accion) {
+        boolean existe = permisosService.existePermiso(modulo, accion);
+        return Map.of("existe", existe);
+    }
+
+    // Crear permiso solo si no existe
+    @PostMapping("/admin/crear-si-no-existe")
+    public Map<String, Object> crearPermisoSiNoExiste(@RequestBody Permisos permiso) {
+        return permisosService.crearSiNoExiste(permiso);
+    }
+
 }
 
 

@@ -1,7 +1,13 @@
 package com.registro_y_iniciosesion_backend.repositorios;
 
+import com.registro_y_iniciosesion_backend.entidades.Permisos;
 import com.registro_y_iniciosesion_backend.entidades.Rol;
+import com.registro_y_iniciosesion_backend.entidades.Usuarios;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 
 // --------------------------------------------------------

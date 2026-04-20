@@ -50,10 +50,6 @@ public class RolController {
         return rolService.crear(rol);
     }
 
-
-
-
-
     // Buscar un permiso por ID (GET /permisos/{id})
     @GetMapping("/admin/{rolId}")
     public Rol buscarPorId(@PathVariable Long id) {
@@ -61,21 +57,9 @@ public class RolController {
     }
 
 
-
-
-
-
-
-
-    //Filtrar x Nombre
-    //@GetMapping("admin/buscar")
-    //public List<Rol> buscar(@RequestParam String nombre) {
-    //    return rolService.buscarPorNombre(nombre);
-    //}
-
-
-
-
+    //////////////////////////////////
+    //////////// PERMISO /////////////
+    //////////////////////////////////
 
 
 
