@@ -2,6 +2,7 @@ package com.registro_y_iniciosesion_backend.controladores;
 
 import com.registro_y_iniciosesion_backend.entidades.Permisos;
 import com.registro_y_iniciosesion_backend.servicios.PermisosService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;

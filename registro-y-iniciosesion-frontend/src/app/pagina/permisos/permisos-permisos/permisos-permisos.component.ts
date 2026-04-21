@@ -7,9 +7,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
+import { PermisosPermisosService } from '../../../arquitectura/servicio/permisos/permisos-permisos.service';
+
 
 @Component({
   selector: 'app-permisos-permisos',
@@ -81,7 +82,7 @@ export class PermisosPermisosComponent implements OnInit {
   // ============================================
   constructor(
     private dialog: MatDialogRef<PermisosPermisosComponent>,
-    private autenticadorService: AutenticadorService
+    private permisosPermisosService: PermisosPermisosService
   ) { }
 
 
@@ -142,7 +143,7 @@ export class PermisosPermisosComponent implements OnInit {
 
   /** Cargar la lista de permisos desde el backend */
   cargarListaPermisos() {
-    this.autenticadorService.obtenerPermisos().subscribe({
+    this.permisosPermisosService.obtenerPermisos().subscribe({
       next: (data) => {
         // Ordenar los permisos por ID de menor a mayor
         this.permisos = data.sort((a, b) => a.id - b.id);
@@ -154,7 +155,7 @@ export class PermisosPermisosComponent implements OnInit {
 
   /** Carga los módulos únicos para los selectores */
   cargarModulos() {
-    this.autenticadorService.obtenerModulos().subscribe({
+    this.permisosPermisosService.obtenerModulos().subscribe({
       next: (data) => {
         this.modulosDisponibles = data;
       },
@@ -192,7 +193,7 @@ export class PermisosPermisosComponent implements OnInit {
       return;
     }
 
-    this.autenticadorService.verificarPermiso(
+    this.permisosPermisosService.verificarPermiso(
       this.nuevoPermiso.modulo,
       this.nuevoPermiso.accion
     ).subscribe({
@@ -235,7 +236,7 @@ export class PermisosPermisosComponent implements OnInit {
       accion: accionFinal
     };
 
-    this.autenticadorService.crearPermisoSiNoExiste(permisoData).subscribe({
+    this.permisosPermisosService.crearPermisoSiNoExiste(permisoData).subscribe({
       next: (resp) => {
         if (resp.creado) {
           this.modoCrearPermiso = false;
@@ -284,7 +285,7 @@ export class PermisosPermisosComponent implements OnInit {
 
     // Cargar acciones disponibles para el módulo actual
     if (permiso.modulo) {
-      this.autenticadorService.obtenerAccionesPorModulo(permiso.modulo).subscribe({
+      this.permisosPermisosService.obtenerAccionesPorModulo(permiso.modulo).subscribe({
         next: (data) => {
           this.accionesDisponiblesEditar = data;
         },
@@ -318,7 +319,7 @@ export class PermisosPermisosComponent implements OnInit {
     if (moduloFinal !== this.permisoSeleccionado.moduloOriginal ||
       accionFinal !== this.permisoSeleccionado.accionOriginal) {
 
-      this.autenticadorService.verificarPermiso(moduloFinal, accionFinal).subscribe({
+      this.permisosPermisosService.verificarPermiso(moduloFinal, accionFinal).subscribe({
         next: (resp) => {
           if (resp.existe) {
             // Error fijo - NO se elimina automáticamente
@@ -348,7 +349,7 @@ export class PermisosPermisosComponent implements OnInit {
       accion: accionLimpia
     };
 
-    this.autenticadorService.actualizarPermiso(
+    this.permisosPermisosService.actualizarPermiso(
       this.permisoSeleccionado.id,
       permisoActualizado
     ).subscribe({
@@ -376,7 +377,7 @@ export class PermisosPermisosComponent implements OnInit {
       return;
     }
 
-    this.autenticadorService.eliminarPermiso(permiso.id).subscribe({
+    this.permisosPermisosService.eliminarPermiso(permiso.id).subscribe({
       next: (mensaje: String) => {
         alert(mensaje);
         console.log(mensaje);
@@ -403,7 +404,7 @@ export class PermisosPermisosComponent implements OnInit {
     this.editando = false;
     this.modoCrearPermiso = false;
 
-    this.autenticadorService.obtenerRolesPorPermiso(permiso.id).subscribe({
+    this.permisosPermisosService.obtenerRolesPorPermiso(permiso.id).subscribe({
       next: (data) => {
         this.rolesPorPermiso = data;
       },
@@ -432,7 +433,7 @@ export class PermisosPermisosComponent implements OnInit {
     this.accionesDisponibles = [];
 
     if (modulo) {
-      this.autenticadorService.obtenerAccionesPorModulo(modulo).subscribe({
+      this.permisosPermisosService.obtenerAccionesPorModulo(modulo).subscribe({
         next: (data) => {
           this.accionesDisponibles = data;
         },
@@ -444,7 +445,7 @@ export class PermisosPermisosComponent implements OnInit {
   /** Maneja el cambio de módulo en el formulario de edición */
   onModuloChangeEditar(modulo: string) {
     if (modulo && modulo !== 'otro') {
-      this.autenticadorService.obtenerAccionesPorModulo(modulo).subscribe({
+      this.permisosPermisosService.obtenerAccionesPorModulo(modulo).subscribe({
         next: (data) => {
           this.accionesDisponiblesEditar = data;
         },

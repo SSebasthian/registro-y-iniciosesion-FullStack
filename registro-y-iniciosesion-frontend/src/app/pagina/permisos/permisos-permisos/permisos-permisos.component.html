@@ -36,7 +36,8 @@
 
                 <div class="cantidad" (click)="verRolesPorPermiso(permiso)">
                     <span class="nombre-cantidad">En Uso:</span>
-                    <span class="permiso-cantidad">{{ permiso.cantidadUsuarios ?? 0 }}</span>
+                    <span class="permiso-cantidad">{{ permiso.cantidadRoles  ?? 0 }}</span>
+                    <!-- <span class="permiso-cantidad">{{ permiso.cantidadUsuarios ?? 0 }}</span> -->
                 </div>
 
                 <div class="acciones">

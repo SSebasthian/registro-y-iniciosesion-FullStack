@@ -7,8 +7,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
-
+import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
+import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
 
 @Component({
   selector: 'app-permisos-rol',
@@ -28,7 +28,8 @@ export class PermisosRolComponent implements OnInit {
 
   constructor(
     private dialog: MatDialogRef<PermisosRolComponent>,
-    private autenticadorService: AutenticadorService
+    private rolPermisosService: RolPermisosService,
+    private usuariosPermisosService: UsuariosPermisosService
   ) { }
 
   ngOnInit() {
@@ -41,13 +42,13 @@ export class PermisosRolComponent implements OnInit {
 
 
   cargarRoles() {
-    this.autenticadorService.obtenerRoles().subscribe({
+    this.rolPermisosService.obtenerRoles().subscribe({
       next: (data) => {
         this.roles = data;
 
         // 🔥 traer conteo por cada rol
         this.roles.forEach(rol => {
-          this.autenticadorService.contarUsuariosPorRol(rol.id)
+          this.usuariosPermisosService.contarUsuariosPorRol(rol.id)
             .subscribe(count => {
               rol.usuariosxRol = count;
             });
@@ -64,7 +65,7 @@ export class PermisosRolComponent implements OnInit {
 
 
   guardarRol() {
-    this.autenticadorService.actualizarRol(
+    this.rolPermisosService.actualizarRol(
       this.rolSeleccionado.id,
       this.rolSeleccionado
     ).subscribe({
@@ -82,7 +83,7 @@ export class PermisosRolComponent implements OnInit {
       return;
     }
 
-    this.autenticadorService.eliminarRol(rol.id).subscribe({
+    this.rolPermisosService.eliminarRol(rol.id).subscribe({
       next: (mensaje: String) => {
         alert(mensaje);
         console.log(mensaje);
@@ -106,7 +107,7 @@ export class PermisosRolComponent implements OnInit {
   }
 
   crearNuevoRol() {
-    this.autenticadorService.crearRol(this.nuevoRol).subscribe({
+    this.rolPermisosService.crearRol(this.nuevoRol).subscribe({
       next: (resp) => {
         console.log('Rol creado:', resp);
 
@@ -144,7 +145,7 @@ export class PermisosRolComponent implements OnInit {
     this.rolSeleccionado = rol;
     this.usuariosPorRol = [];
 
-    this.autenticadorService.obtenerUsuariosPorRol(rol.id).subscribe({
+    this.usuariosPermisosService.obtenerUsuariosPorRol(rol.id).subscribe({
       next: (datos) => {
         this.usuariosPorRol = datos;
       },

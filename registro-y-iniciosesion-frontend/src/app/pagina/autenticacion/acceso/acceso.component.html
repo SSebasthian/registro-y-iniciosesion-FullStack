@@ -10,15 +10,18 @@
                 <span class="span">
                     <mat-icon>person</mat-icon>
                 </span>
-                <label class="label">Usuario</label>
+                <label class="label">Ingresar Usuario</label>
             </div>
 
             <div class="field">
-                <input required="" type="password" class="input" [(ngModel)]="clave" name="clave">
+                <input required="" [type]="mostrarClave ? 'text' : 'password'" class="input" [(ngModel)]="clave" name="clave">
                 <span class="span">
                     <mat-icon>fingerprint</mat-icon>
                 </span>
-                <label class="label">Contraseña</label>
+                <label class="label">Ingresar Contraseña</label>
+                <button type="button" class="toggle-password" (click)="toggleMostrarClave()">
+                    <mat-icon>{{ mostrarClave ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
             </div>
             
             <button class="button">Acceder</button>

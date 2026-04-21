@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticacion/autenticador.service';
 
 
 

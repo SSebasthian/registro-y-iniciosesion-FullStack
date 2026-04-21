@@ -1,5 +1,5 @@
 import { FormsModule } from '@angular/forms';
-import { AutenticadorService } from './../../../arquitectura/servicio/autenticador.service';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticacion/autenticador.service';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatIconModule} from '@angular/material/icon'
@@ -21,6 +21,7 @@ export class AccesoComponent {
   usuario: string = '';  // almacena el usuario del formulario
   clave: string = '';    // almacena la clave del formulario
   mensaje: string = '';  // mensaje para mostrar en pantalla (exitoso o error)
+  mostrarClave: boolean = false; // variable para controlar la visibilidad de la contraseña
 
   constructor(
     private autenticadorService: AutenticadorService,
@@ -69,4 +70,12 @@ export class AccesoComponent {
     });
   }
 
+
+  // ---------------------------------------------------------
+  // MÉTODOS PARA MOSTRAR/OCULTAR CONTRASEÑA
+  // ---------------------------------------------------------
+
+  toggleMostrarClave() {
+    this.mostrarClave = !this.mostrarClave;
+  }
 }

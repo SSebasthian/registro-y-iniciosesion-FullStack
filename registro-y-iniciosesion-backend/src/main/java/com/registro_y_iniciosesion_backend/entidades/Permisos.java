@@ -19,6 +19,11 @@ public class Permisos {
     @Column(nullable = false)
     private String accion;
 
+
+    @Transient // Esto evita que se guarde en la base de datos
+    private Long cantidadRoles;
+
     @Transient  // Esto evita que se guarde en la base de datos
     private Long cantidadUsuarios;
+
 }

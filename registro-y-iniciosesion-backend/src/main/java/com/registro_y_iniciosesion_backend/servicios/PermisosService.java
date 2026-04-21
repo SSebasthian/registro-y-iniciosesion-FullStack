@@ -73,9 +73,12 @@ public class PermisosService {
         List<Permisos> permisos = permisosRepository.findAll();
 
         for (Permisos permiso : permisos) {
+            // Calcular cantidad de roles que tienen este permiso
+            Long cantidadRoles = contarRolesPorPermiso(permiso.getId());
             // Calcular cantidad de usuarios que tienen este permiso
             Long cantidad = contarUsuariosPorPermiso(permiso.getId());
             // Usar setter para agregar un campo temporal (necesitas modificar la entidad)
+            permiso.setCantidadRoles(cantidadRoles);
             permiso.setCantidadUsuarios(cantidad);
         }
 
@@ -96,6 +99,19 @@ public class PermisosService {
         Number result = (Number) query.getSingleResult();
         return result.longValue();
     }
+
+    public Long contarRolesPorPermiso(Long permisoId) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(DISTINCT pr.id_rol) " +
+                        "FROM permisosxrol pr " +
+                        "WHERE pr.id_permiso = :permisoId"
+        );
+        query.setParameter("permisoId", permisoId);
+
+        Number result = (Number) query.getSingleResult();
+        return result.longValue();
+    }
+
 
     public List<Map<String, Object>> obtenerRolesPorPermiso(Long permisoId) {
         List<Object[]> resultados = permisosRepository.findRolesConUsuariosByPermisoId(permisoId);

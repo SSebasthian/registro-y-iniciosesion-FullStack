@@ -8,7 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
+import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
+import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
+import { AutenticadorService } from './../../../arquitectura/servicio/autenticacion/autenticador.service';
 
 
 
@@ -36,6 +38,8 @@ export class PermisosUsuariosComponent {
 
   constructor(
     private dialog: MatDialogRef<PermisosUsuariosComponent>,
+    private usuariosPermisosService: UsuariosPermisosService,
+    private rolPermisosService: RolPermisosService,
     private autenticadorService: AutenticadorService
   ) { }
 
@@ -48,7 +52,7 @@ export class PermisosUsuariosComponent {
   /*** Obtiene la lista de usuarios desde el backend **
   *****************************************************/
   cargarUsuarios() {
-    this.autenticadorService.obtenerUsuariosAdmin().subscribe({
+    this.usuariosPermisosService.obtenerUsuariosAdmin().subscribe({
       next: (data) => {
         this.usuarios = data;
         console.log('Se Listaron los Usuarios');
@@ -65,7 +69,7 @@ export class PermisosUsuariosComponent {
    * Obtiene la lista de roles desde el backend *
    **********************************************/
   cargarRoles() {
-    this.autenticadorService.obtenerRoles().subscribe({
+    this.rolPermisosService.obtenerRoles().subscribe({
       next: (data) => this.roles = data,
       error: (err) => console.error(err)
     });
@@ -102,7 +106,7 @@ export class PermisosUsuariosComponent {
    **********************************************/
   guardarUsuario() {
     const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}');
-    this.autenticadorService.actualizarUsuariosAdmin(this.usuarioOriginal, this.usuarioSeleccionado).subscribe({
+    this.usuariosPermisosService.actualizarUsuariosAdmin(this.usuarioOriginal, this.usuarioSeleccionado).subscribe({
 
       next: () => {
         // SI ES EL MISMO USUARIO LOGUEADO
@@ -152,7 +156,7 @@ export class PermisosUsuariosComponent {
       return;
     }
 
-    this.autenticadorService
+    this.usuariosPermisosService
       .cambiarClaveAdmin(this.usuarioSeleccionado.usuario, this.nuevaClave)
       .subscribe({
         next: (res: any) => {
@@ -230,7 +234,7 @@ export class PermisosUsuariosComponent {
       rolId: this.nuevoUsuario.rol
     };
 
-    this.autenticadorService.registrarAdmin(data).subscribe({
+    this.usuariosPermisosService.registrarAdmin(data).subscribe({
       next: (res) => {
         console.log(res.mensaje);
         alert(res.mensaje);
@@ -272,7 +276,7 @@ export class PermisosUsuariosComponent {
 
     if (!confirmacion) return;
 
-    this.autenticadorService.eliminarUsuarioAdmin(usuario.usuario).subscribe({
+    this.usuariosPermisosService.eliminarUsuarioAdmin(usuario.usuario).subscribe({
       next: (res: any) => {
 
         console.log(res.mensaje || 'Usuario eliminado correctamente');

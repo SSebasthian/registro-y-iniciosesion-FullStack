@@ -21,3 +21,8 @@
 `ng generate component pagina/permisos/permisos-permisos` (PERMISOS PERMISOS)<br>
 
 `ng generate component pagina/permisos/permisos-permisosxrol` (PERMISOS - PERMISOS POR ROL)<br>
+`ng generate service arquitectura/servicio/usuarios-permisos` (Servicio para USUARIOS Permiso)<br>
+`ng generate service arquitectura/servicio/rol-permisos` (Servicio para ROL Permiso)<br>
+`ng generate service arquitectura/servicio/permisos-permisos` (Servicio para PERMISOS Permiso)<br>
+
+

@@ -1,16 +1,16 @@
 import { FormsModule } from '@angular/forms';
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticador.service';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {MatIconModule} from '@angular/material/icon'
+import { MatIconModule } from '@angular/material/icon'
 import { RouterLink, RouterModule } from "@angular/router";
 import { registroRespuesta } from './../../../arquitectura/interface/registroRespuesta.interface';
 import { registroSolicitud } from './../../../arquitectura/interface/registroSolicitud.interface';
+import { AutenticadorService } from './../../../arquitectura/servicio/autenticacion/autenticador.service';
 
 
 @Component({
   selector: 'app-registro',
-  imports: [MatIconModule, RouterLink,RouterModule, FormsModule, CommonModule],
+  imports: [MatIconModule, RouterLink, RouterModule, FormsModule, CommonModule],
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css'
 })
@@ -19,7 +19,13 @@ export class RegistroComponent {
   usuario: string = '';  // almacena el usuario del formulario
   nombre: string = '';   // almacena el nombre del formulario
   clave: string = '';    // almacena la clave del formulario
+  confirmarclave: string = ''; // almacena la confirmación de clave del formulario
   mensaje: string = '';  // mensaje para mostrar en pantalla (exitoso o error)
+  errorConfirmacion: string = ''; // mensaje de error específico para contraseñas
+  mostrarClave: boolean = false; // variable para controlar la visibilidad de la contraseña
+  mostrarClaveConfirmacion: boolean = false; // variable para controlar la visibilidad de la contraseña
+
+
 
   constructor(private autenticadorService: AutenticadorService) { }
 
@@ -29,41 +35,71 @@ export class RegistroComponent {
   // ---------------------------------------------------------
 
   registrar() {
-  const data: registroSolicitud = {
-    usuario: this.usuario,
-    nombre: this.nombre,
-    clave: this.clave
-  };
+    // VALIDAR QUE LAS CONTRASEÑAS COINCIDAN
+    if (this.clave !== this.confirmarclave) {
+      this.errorConfirmacion = '❌ Las contraseñas no coinciden';
+      this.mensaje = '';
+      return;
+    }
+
+    // VALIDAR QUE LA CONTRASEÑA NO ESTÉ VACÍA
+    if (!this.clave || this.clave.trim() === '') {
+      this.mensaje = 'La contraseña no puede estar vacía';
+      this.errorConfirmacion = '';
+      return;
+    }
+
+    // Limpiar errores si todo está bien
+    this.errorConfirmacion = '';
+
+    const data: registroSolicitud = {
+      usuario: this.usuario,
+      nombre: this.nombre,
+      clave: this.clave
+    };
 
 
-  // Llamamos al servicio autenticadorService.registro() {
-  // Este devuelve un Observable, así que usamos subscribe() para recibir la respuesta
-  this.autenticadorService.registro(data).subscribe({
+    // Llamamos al servicio autenticadorService.registro() {
+    // Este devuelve un Observable, así que usamos subscribe() para recibir la respuesta
+    this.autenticadorService.registro(data).subscribe({
 
-    // Si el backend responde correctamente (200 OK)
-    next: (respuesta: registroRespuesta) => {
+      // Si el backend responde correctamente (200 OK)
+      next: (respuesta: registroRespuesta) => {
 
-      // Guardamos el mensaje en la variable 'mensaje' para mostrarlo en pantalla
-      this.mensaje = respuesta.mensaje;
+        // Guardamos el mensaje en la variable 'mensaje' para mostrarlo en pantalla
+        this.mensaje = respuesta.mensaje;
 
-      // Si el mensaje del backend indica Registro exitoso
-      if (respuesta.mensaje === 'Usuario registrado correctamente'){
+        // Si el mensaje del backend indica Registro exitoso
+        if (respuesta.mensaje === 'Usuario registrado correctamente') {
 
-        // Guardamos en localStorage los datos recibidos del backend
-        // (por ejemplo token, id de usuario, nombre, etc.)
-        localStorage.setItem('usuario', JSON.stringify(respuesta));
+          // Guardamos en localStorage los datos recibidos del backend
+          // (por ejemplo token, id de usuario, nombre, etc.)
+          localStorage.setItem('usuario', JSON.stringify(respuesta));
 
-        // Luego podrías redirigir a otra página, como un Inicip
-        console.log('Redirigiendo a Inicio...');
-        // Aquí ponemos Router.navigate(['/inicio'])
-      }
-    },
+          // Luego podrías redirigir a otra página, como un Inicip
+          console.log('Redirigiendo a Inicio...');
+          // Aquí ponemos Router.navigate(['/inicio'])
+        }
+      },
 
-    // Si ocurre un error en el servidor o no responde correctamente
-    error: (err) => {
+      // Si ocurre un error en el servidor o no responde correctamente
+      error: (err) => {
         this.mensaje = 'Error en el servidor';
       }
     });
+  }
+
+
+  // ---------------------------------------------------------
+  // MÉTODOS PARA MOSTRAR/OCULTAR CONTRASEÑA
+  // ---------------------------------------------------------
+
+  toggleMostrarClave() {
+    this.mostrarClave = !this.mostrarClave;
+  }
+
+  toggleMostrarClaveConfirmacion() {
+    this.mostrarClaveConfirmacion = !this.mostrarClaveConfirmacion;
   }
 
 }

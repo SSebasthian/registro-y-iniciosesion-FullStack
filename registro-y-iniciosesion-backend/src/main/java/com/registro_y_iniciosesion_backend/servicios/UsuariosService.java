@@ -66,10 +66,20 @@ public class UsuariosService {
         }
 
         // 2. Asignar por defecto el rol NORMAL (id = 2)
-        Rol rolNormal = rolRepository.findById(2L)
-                .orElse(null);
-        if (rolNormal == null) {
-            return new RegistroRespuesta("El Rol NORMAL (id=2) No Existe", null, null, null);
+        Rol rolAsignado;
+
+        if (datos.getRolId() != null) {
+            // Si viene rolId en la solicitud, usar ese
+            rolAsignado = rolRepository.findById(datos.getRolId()).orElse(null);
+            if (rolAsignado == null) {
+                return new RegistroRespuesta("El Rol con ID " + datos.getRolId() + " No Existe", null, null, null);
+            }
+        } else {
+            // Si no viene rolId, usar el rol NORMAL (id=2) por defecto
+            rolAsignado = rolRepository.findById(2L).orElse(null);
+            if (rolAsignado == null) {
+                return new RegistroRespuesta("El Rol NORMAL (id=2) No Existe", null, null, null);
+            }
         }
 
         // 3. Crear usuario nuevo
@@ -79,7 +89,7 @@ public class UsuariosService {
         // Se encripta la contraseña
         nuevo.setClave(codificarClave.encode(datos.getClave()));
         nuevo.setActivo(true);
-        nuevo.setRol(rolNormal);
+        nuevo.setRol(rolAsignado);
 
         usuariosRepository.save(nuevo);
 
@@ -131,7 +141,8 @@ public class UsuariosService {
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Actualiza el perfil del usuario (solo datos básicos)- No modifica rol ni contraseña
-    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////////////
     public Usuarios actualizarPerfil(String usuario, Usuarios datos) {
 
         // Buscar usuario existente
@@ -150,7 +161,8 @@ public class UsuariosService {
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Cambia la contraseña del usuario validando la actua
-    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////////////
     public String cambiarClave(String usuario, String actual, String nueva) {
         Usuarios user = usuariosRepository.findByUsuario(usuario);
 
@@ -177,7 +189,8 @@ public class UsuariosService {
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Actualiza usuario desde el panel ADMIN - Permite modificar nombre, usaurio, estado, rol
-    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////////////
     public Usuarios actualizarUsuarioAdmin(String usuario, Usuarios datos) {
 
         Usuarios user = usuariosRepository.findByUsuario(usuario);
@@ -201,7 +214,8 @@ public class UsuariosService {
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Cambia contraseña desde ADMIN sin validar contraseña actual
-    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////////////
     public String cambiarClaveAdmin(String usuario, String nueva) {
         Usuarios user = usuariosRepository.findByUsuario(usuario);
 
@@ -217,10 +231,10 @@ public class UsuariosService {
     }
 
 
-
     ////////////////////////////////////////////////////////////////////////////////////////
     // Registra un usuario desde el panel ADMIN - Valida duplicados, asigna rol, incripta clave
-    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////////////
     public RegistroRespuesta registrarAdmin(RegistroSolicitud datos) {
         Usuarios existente = usuariosRepository.findByUsuario(datos.getUsuario());
         if (existente != null) {
@@ -253,7 +267,8 @@ public class UsuariosService {
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // Elimina un usuario del sistema
-    ////////////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////////////
     public void eliminarUsuario(String usuario) {
         Usuarios user = usuariosRepository.findByUsuario(usuario);
 
