@@ -129,7 +129,7 @@ export class PerfilComponent {
   permisosxRol() {
     this.dialog.open(PermisosPermisosxrolComponent, {
       width: '800px',
-      height: '600px'
+      height: '505px'
     });
   }
 

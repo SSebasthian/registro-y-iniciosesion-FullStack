@@ -10,7 +10,7 @@
 `ng new registro-y-iniciosesion-frontend` (Se crea con CSS)<br>
 `ng generate component pagina/autenticacion/acceso` (Acceso)<br>
 `ng generate component pagina/autenticacion/registro` (Registro)<br>
-`ng generate service arquitectura/servicio/autenticador` (Servicio Autenticacion)<br>
+`ng generate service arquitectura/servicio/permisos/autenticador` (Servicio Autenticacion)<br>
 `Se crea interface inicioSesionSolicitud manualmente` (Interface InicioSesionSolicitud SOLICITUD AUTENTICACION BACKEND)<br>
 `Se crea interface inicioSesionRespuesta manualmente` (Interface inicioSesionRespuesta RESPUESTA AUTENTICACION BACKEND)<br>
 `ng generate component pagina/autenticacion/perfil` (Perfil)<br>
@@ -21,8 +21,9 @@
 `ng generate component pagina/permisos/permisos-permisos` (PERMISOS PERMISOS)<br>
 
 `ng generate component pagina/permisos/permisos-permisosxrol` (PERMISOS - PERMISOS POR ROL)<br>
-`ng generate service arquitectura/servicio/usuarios-permisos` (Servicio para USUARIOS Permiso)<br>
-`ng generate service arquitectura/servicio/rol-permisos` (Servicio para ROL Permiso)<br>
-`ng generate service arquitectura/servicio/permisos-permisos` (Servicio para PERMISOS Permiso)<br>
+`ng generate service arquitectura/servicio/permisos/usuarios-permisos` (Servicio para USUARIOS Permiso)<br>
+`ng generate service arquitectura/servicio/permisos/rol-permisos` (Servicio para ROL Permiso)<br>
+`ng generate service arquitectura/servicio/permisos/permisos-permisos` (Servicio para PERMISOS Permiso)<br>
+`ng generate service arquitectura/servicio/permisos/permisosxrol-permisos` (Servicio para PERMISOS X ROL)<br>
 
 
