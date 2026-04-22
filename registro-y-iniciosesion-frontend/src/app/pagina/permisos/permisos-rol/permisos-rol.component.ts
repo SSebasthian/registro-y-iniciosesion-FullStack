@@ -9,6 +9,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
 import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
+import { AutenticadorService } from './../../../arquitectura/servicio/autenticacion/autenticador.service';
+
+
 
 @Component({
   selector: 'app-permisos-rol',
@@ -25,28 +28,45 @@ export class PermisosRolComponent implements OnInit {
   verRolesxUsuarios: boolean = false;
   roles: any[] = [];
   usuariosPorRol: any[] = [];
+  usuarioActual: any = null;
 
   constructor(
     private dialog: MatDialogRef<PermisosRolComponent>,
     private rolPermisosService: RolPermisosService,
-    private usuariosPermisosService: UsuariosPermisosService
+    private usuariosPermisosService: UsuariosPermisosService,
+    private autenticadorService: AutenticadorService
   ) { }
 
   ngOnInit() {
     this.cargarRoles();
+    this.cargarUsuarioActual();
   }
 
   nuevoRol: any = {
     nombre: ''
   };
 
+  // Nuevo método: Cargar usuario actual para saber su rol
+  cargarUsuarioActual() {
+    this.autenticadorService.getPerfil().subscribe({
+      next: (datos) => {
+        this.usuarioActual = datos;
+        //console.log('Usuario actual - Rol ID:', this.usuarioActual?.rol?.id);
+        //console.log('Usuario actual - Rol nombre:', this.usuarioActual?.rol?.nombre);
+      },
+      error: (err) => {
+        console.error('Error al cargar usuario actual:', err);
+      }
+    });
+  }
 
   cargarRoles() {
     this.rolPermisosService.obtenerRoles().subscribe({
       next: (data) => {
         this.roles = data;
 
-        // 🔥 traer conteo por cada rol
+        // traer conteo por cada rol
+        console.log('Se Listan Los Roles');
         this.roles.forEach(rol => {
           this.usuariosPermisosService.contarUsuariosPorRol(rol.id)
             .subscribe(count => {
@@ -60,11 +80,15 @@ export class PermisosRolComponent implements OnInit {
 
   editarRol(rol: any) {
     this.rolSeleccionado = { ...rol };
+    console.log('Rol seleccionado para edición:', this.rolSeleccionado.nombre);
     this.editando = true;
   }
 
 
   guardarRol() {
+    const rolId = this.rolSeleccionado.id;
+    const esMiRol = this.usuarioActual?.rol?.id === rolId;
+
     this.rolPermisosService.actualizarRol(
       this.rolSeleccionado.id,
       this.rolSeleccionado
@@ -72,9 +96,27 @@ export class PermisosRolComponent implements OnInit {
       next: (resp) => {
         this.editando = false;
         this.cargarRoles(); // refrescar lista
+
+
+        // SI ES MI ROL, NOTIFICAR PARA ACTUALIZAR PERFIL
+        if (esMiRol) {
+          //console.log('Mi rol fue modificado, actualizando perfil...');
+
+          // Forzar actualización del perfil
+          this.autenticadorService.notificarPerfilActualizado();
+
+          // También actualizar localStorage directamente
+          const usuarioLS = JSON.parse(localStorage.getItem('usuario') || '{}');
+          if (usuarioLS.rol) {
+            usuarioLS.rol.nombre = this.rolSeleccionado.nombre;
+            localStorage.setItem('usuario', JSON.stringify(usuarioLS));
+          }
+
+        }
       },
       error: (err) => console.error(err)
     });
+    console.log('Rol actualizado:', this.rolSeleccionado.nombre);
   }
 
 

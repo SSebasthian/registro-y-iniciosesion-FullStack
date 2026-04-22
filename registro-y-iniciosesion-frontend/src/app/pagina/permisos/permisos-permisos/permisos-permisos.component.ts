@@ -82,7 +82,7 @@ export class PermisosPermisosComponent implements OnInit {
   // ============================================
   constructor(
     private dialog: MatDialogRef<PermisosPermisosComponent>,
-    private permisosPermisosService: PermisosPermisosService
+    private permisosPermisosService: PermisosPermisosService,
   ) { }
 
 
@@ -147,7 +147,7 @@ export class PermisosPermisosComponent implements OnInit {
       next: (data) => {
         // Ordenar los permisos por ID de menor a mayor
         this.permisos = data.sort((a, b) => a.id - b.id);
-        console.log('Permisos cargados:', this.permisos);
+        console.log('Se Listan los Permisos:');
       },
       error: (err) => console.error('Error al cargar permisos:', err)
     });
@@ -283,6 +283,7 @@ export class PermisosPermisosComponent implements OnInit {
     this.verPermisosxRol = false;
     this.mensajeError = '';
 
+
     // Cargar acciones disponibles para el módulo actual
     if (permiso.modulo) {
       this.permisosPermisosService.obtenerAccionesPorModulo(permiso.modulo).subscribe({
@@ -293,6 +294,7 @@ export class PermisosPermisosComponent implements OnInit {
       });
     }
   }
+
 
 
   /** Guarda los cambios del permiso editado */
@@ -358,7 +360,10 @@ export class PermisosPermisosComponent implements OnInit {
         this.cargarListaPermisos();
         this.cargarModulos();
         this.permisoSeleccionado = null;
+        
         alert('Permiso actualizado correctamente');
+
+        this.dialog.close(true); 
       },
       error: (err) => console.error(err)
     });

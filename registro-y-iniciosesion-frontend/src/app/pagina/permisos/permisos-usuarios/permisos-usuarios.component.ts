@@ -130,7 +130,6 @@ export class PermisosUsuariosComponent {
         this.cargarUsuarios();
 
         this.editando = false;
-
         console.log('Usuario actualizado correctamente');
       },
       error: (err) => {

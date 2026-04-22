@@ -8,6 +8,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PermisosxrolPermisosService } from '../../../arquitectura/servicio/permisos/permisosxrol-permisos.service';
+
 
 
 
@@ -19,87 +21,79 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class PermisosPermisosxrolComponent {
 
-  /** Lista de roles disponibles en el sistema */
-  roles: any[] = [
-    { id: 1, nombre: 'administrador' },
-    { id: 2, nombre: 'usuario' },
-    { id: 3, nombre: 'invitado' },
-    { id: 4, nombre: 'supervisor' }
-  ];
-
-
-  // Todos los permisos disponibles
-  todosLosPermisos: any[] = [
-    { id: 1, modulo: 'usuarios', accion: 'ver', asignado: false, rolesAsignados: [] },
-    { id: 2, modulo: 'usuarios', accion: 'crear', asignado: false, rolesAsignados: [] },
-    { id: 3, modulo: 'usuarios', accion: 'editar', asignado: false, rolesAsignados: [] },
-    { id: 4, modulo: 'usuarios', accion: 'eliminar', asignado: false, rolesAsignados: [] },
-    { id: 5, modulo: 'roles', accion: 'ver', asignado: false, rolesAsignados: [] },
-    { id: 6, modulo: 'roles', accion: 'crear', asignado: false, rolesAsignados: [] },
-    { id: 7, modulo: 'roles', accion: 'editar', asignado: false, rolesAsignados: [] },
-    { id: 8, modulo: 'roles', accion: 'eliminar', asignado: false, rolesAsignados: [] },
-    { id: 9, modulo: 'permisos', accion: 'ver', asignado: false, rolesAsignados: [] },
-    { id: 10, modulo: 'permisos', accion: 'crear', asignado: false, rolesAsignados: [] },
-    { id: 11, modulo: 'permisos', accion: 'editar', asignado: false, rolesAsignados: [] },
-    { id: 12, modulo: 'permisos', accion: 'eliminar', asignado: false, rolesAsignados: [] },
-    { id: 13, modulo: 'dashboard', accion: 'ver', asignado: false, rolesAsignados: [] },
-    { id: 14, modulo: 'reportes', accion: 'generar', asignado: false, rolesAsignados: [] },
-    { id: 15, modulo: 'configuracion', accion: 'ver', asignado: false, rolesAsignados: [] }
-  ];
-
-  permisos: any[] = [];
+  roles: any[] = [];  /** Lista de roles disponibles en el sistema  (viene del backend)*/
+  permisos: any[] = []; /** Todos los permisos disponibles con estado de asignación */
   rolSeleccionado: any = null;
   filtro: string = '';
   hayCambios: boolean = false;
+
 
   // Backup para saber qué cambió
   private backupPermisos: Map<number, boolean> = new Map();
 
 
-  constructor(private dialogRef: MatDialogRef<PermisosPermisosxrolComponent>) {
-    // Inicializar permisos vacíos
-    this.inicializarRolesAsignados();
-    this.permisos = JSON.parse(JSON.stringify(this.todosLosPermisos));
+  constructor(
+    private dialogRef: MatDialogRef<PermisosPermisosxrolComponent>,
+    private permisosxrolPermisosService: PermisosxrolPermisosService
+  ) {
+    this.cargarRoles();
+    this.cargarTodosLosPermisosConRoles();
   }
 
 
   // ============================================
   // MÉTODOS DE INICIALIZACIÓN 
   // ============================================
-  
-  inicializarRolesAsignados() {
-    // Administrador tiene todos
-    this.todosLosPermisos.forEach(p => {
-      p.rolesAsignados = [];
 
-      // Simular asignaciones
-      if (p.modulo === 'dashboard') {
-        p.rolesAsignados = ['administrador', 'usuario', 'supervisor'];
-      } else if (p.modulo === 'usuarios' && p.accion === 'ver') {
-        p.rolesAsignados = ['administrador', 'usuario', 'supervisor'];
-      } else if (p.modulo === 'usuarios' && (p.accion === 'crear' || p.accion === 'editar')) {
-        p.rolesAsignados = ['administrador', 'supervisor'];
-      } else if (p.modulo === 'usuarios' && p.accion === 'eliminar') {
-        p.rolesAsignados = ['administrador'];
-      } else if (p.modulo === 'reportes') {
-        p.rolesAsignados = ['administrador', 'supervisor'];
-      } else if (p.modulo === 'roles' || p.modulo === 'permisos') {
-        p.rolesAsignados = ['administrador'];
-      } else {
-        p.rolesAsignados = ['administrador'];
+
+  cargarRoles() {
+    this.permisosxrolPermisosService.obtenerRoles().subscribe({
+      next: (data) => {
+        this.roles = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar roles:', err);
+      }
+    });
+  }
+
+  cargarPermisosDelRol() {
+    if (!this.rolSeleccionado) return;
+
+    this.permisosxrolPermisosService.obtenerPermisosConEstado(this.rolSeleccionado.id).subscribe({
+      next: (data) => {
+        //ORDENAR PERMISOS POR ID (ascendente)
+        this.permisos = [...data].sort((a, b) => a.id - b.id);
+        this.permisos = data;
+        this.guardarBackup();
+        this.hayCambios = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar permisos del rol:', err);
       }
     });
   }
 
 
+
+
+  // ============================================
+  // PROPIEDADES Y MÉTODOS AUXILIARES PARA LA VISTA
+  // ============================================
+
   // Permisos filtrados por búsqueda
   get permisosFiltrados() {
-    if (!this.filtro) return this.permisos;
+    let resultado = this.permisos;
 
-    return this.permisos.filter(permiso =>
-      permiso.modulo.toLowerCase().includes(this.filtro.toLowerCase()) ||
-      permiso.accion.toLowerCase().includes(this.filtro.toLowerCase())
-    );
+    if (this.filtro) {
+      resultado = resultado.filter(permiso =>
+        permiso.modulo.toLowerCase().includes(this.filtro.toLowerCase()) ||
+        permiso.accion.toLowerCase().includes(this.filtro.toLowerCase())
+      );
+    }
+
+    // Mantener orden por ID incluso después del filtro
+    return [...resultado].sort((a, b) => a.id - b.id);
   }
 
 
@@ -133,42 +127,72 @@ export class PermisosPermisosxrolComponent {
 
   // Cuando cambia el rol seleccionado
   onRolChange() {
-    if (!this.rolSeleccionado) return;
+    console.log('📌 Rol seleccionado:', this.rolSeleccionado);
 
-    // Simular carga de permisos según el rol
-    // Esto luego vendrá del backend
-    this.permisos = JSON.parse(JSON.stringify(this.todosLosPermisos));
-
-    // Simular permisos asignados según el rol
-    switch (this.rolSeleccionado.nombre) {
-      case 'administrador':
-        // Administrador tiene todos los permisos
-        this.permisos.forEach(p => p.asignado = true);
-        break;
-      case 'usuario':
-        // Usuario solo tiene permisos básicos
-        this.permisos.forEach(p => {
-          p.asignado = p.modulo === 'dashboard' ||
-            (p.modulo === 'usuarios' && p.accion === 'ver');
-        });
-        break;
-      case 'supervisor':
-        // Supervisor tiene permisos de ver y editar en usuarios
-        this.permisos.forEach(p => {
-          p.asignado = p.modulo === 'dashboard' ||
-            p.modulo === 'reportes' ||
-            (p.modulo === 'usuarios' && (p.accion === 'ver' || p.accion === 'editar'));
-        });
-        break;
-      default:
-        // Invitado no tiene permisos
-        this.permisos.forEach(p => p.asignado = false);
-        break;
+    if (!this.rolSeleccionado) {
+      this.cargarTodosLosPermisosConRoles();
+      return;
     }
+    this.cargarPermisosDelRol();
+  }
 
-    // Guardar estado original
-    this.guardarBackup();
-    this.hayCambios = false;
+  cargarTodosLosPermisosConRoles() {
+    console.log('Listar todos los permisos con roles');
+
+    // Primero obtener todos los permisos
+    this.permisosxrolPermisosService.obtenerPermisos().subscribe({
+      next: (permisos) => {
+        //console.log('Permisos obtenidos:', permisos);
+
+        // ORDENAR PERMISOS POR ID (ascendente)
+        const permisosOrdenados = [...permisos].sort((a, b) => a.id - b.id);
+
+        // Para cada permiso, obtener los roles que lo tienen
+        const permisosConRoles: any[] = [];
+        let solicitudesCompletadas = 0;
+
+        if (permisos.length === 0) {
+          this.permisos = [];
+          return;
+        }
+
+        permisosOrdenados.forEach(permiso => {
+          this.permisosxrolPermisosService.obtenerRolesPorPermiso(permiso.id).subscribe({
+            next: (rolesAsignados) => {
+              //console.log(`Permiso ${permiso.modulo}-${permiso.accion} tiene roles:`, rolesAsignados);
+
+              permisosConRoles.push({
+                ...permiso,
+                rolesAsignados: rolesAsignados.map((r: any) => r.nombre)
+              });
+
+              solicitudesCompletadas++;
+
+              // Cuando todas las solicitudes terminen, asignar a this.permisos
+              if (solicitudesCompletadas === permisos.length) {
+                this.permisos = [...permisosConRoles].sort((a, b) => a.id - b.id);
+                //console.log('Todos los permisos con roles cargados:', this.permisos);
+              }
+            },
+            error: (err) => {
+              console.error(`Error al cargar roles para permiso ${permiso.id}:`, err);
+              permisosConRoles.push({
+                ...permiso,
+                rolesAsignados: []
+              });
+              solicitudesCompletadas++;
+
+              if (solicitudesCompletadas === permisos.length) {
+                this.permisos = permisosConRoles;
+              }
+            }
+          });
+        });
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar permisos:', err);
+      }
+    });
   }
 
 
@@ -188,4 +212,46 @@ export class PermisosPermisosxrolComponent {
     );
   }
 
+  guardarCambios() {
+    if (!this.hayCambios) {
+      return;
+    }
+
+    const permisosAAgregar = this.permisos
+      .filter(p => p.asignado && !this.backupPermisos.get(p.id))
+      .map(p => p.id);
+
+    const permisosAQuitar = this.permisos
+      .filter(p => !p.asignado && this.backupPermisos.get(p.id))
+      .map(p => p.id);
+
+    this.permisosxrolPermisosService.actualizarPermisosDeRol(
+      this.rolSeleccionado.id,
+      permisosAAgregar,
+      permisosAQuitar
+    ).subscribe({
+      next: (respuesta) => {
+        this.guardarBackup();
+        this.hayCambios = false;
+        alert('Permisos actualizados correctamente');
+
+        this.rolSeleccionado = null;  // Limpiar el rol seleccionado
+        this.cargarTodosLosPermisosConRoles();
+      },
+      error: (err) => {
+        console.error('Error al guardar permisos:', err);
+        alert('Error al guardar los cambios');
+      }
+    });
+  }
+
+  accionCancelar() {
+    this.dialogRef.close();
+  }
+
+
+
+
 }
+
+

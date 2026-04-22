@@ -37,11 +37,14 @@ export class PermisosPerfilComponent {
   usuario: any;
 
   ngOnInit() {
+    this.cargarPerfil();
+  }
+
+  cargarPerfil() {
     this.autenticadorService.getPerfil().subscribe({
       next: (datos) => {
         this.usuario = datos;
-        console.log('Se Cargo el Usuario:', datos.usuario)
-        //console.log('Usuario real:', datos);
+        console.log('Se Cargó el Usuario:', datos.usuario);
       },
       error: (error) => {
         console.error(error);

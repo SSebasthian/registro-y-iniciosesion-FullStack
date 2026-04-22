@@ -27,6 +27,13 @@ public interface PermisosRepository extends JpaRepository<Permisos,Long> {
             "GROUP BY r.id, r.nombre", nativeQuery = true)
     List<Object[]> findRolesConUsuariosByPermisoId(@Param("permisoId") Long permisoId);
 
+
+    @Query(value = "SELECT DISTINCT r.nombre FROM rol r " +
+            "JOIN permisosxrol pr ON r.id = pr.id_rol " +
+            "WHERE pr.id_permiso = :permisoId", nativeQuery = true)
+    List<String> findRolesNombresByPermisoId(@Param("permisoId") Long permisoId);
+
+
     // Obtener módulos únicos
     @Query("SELECT DISTINCT p.modulo FROM Permisos p ORDER BY p.modulo")
     List<String> findModulosUnicos();
@@ -37,7 +44,6 @@ public interface PermisosRepository extends JpaRepository<Permisos,Long> {
 
     // Verificar si existe un permiso
     boolean existsByModuloAndAccion(String modulo, String accion);
-
 
     // Verificar si un permiso está asociado a algún rol
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Rol r JOIN r.permisos p WHERE p.id = :permisoId")

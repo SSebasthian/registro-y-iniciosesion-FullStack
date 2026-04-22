@@ -199,13 +199,20 @@
 
 /* Resumen cuando no hay roles asignados */
 .resumen-roles {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 5px;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: #f5f5f5;
+    border-radius: 20px;
     color: #999;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px dashed #ddd;
+    transition: all 0.2s ease;
 }
+
 
 .resumen-roles mat-icon {
     width: 18px;
@@ -230,19 +237,18 @@
 
 .sin-permisos {
     position: absolute;
-    top: 50%;            /* ✅ Centrar verticalmente */
-    left: 50%;           /* ✅ Centrar horizontalmente */
-    transform: translate(-50%, -50%);  /* ✅ Ajuste perfecto del centro */
+    top: 50%;            /*  Centrar verticalmente */
+    left: 50%;           /*  Centrar horizontalmente */
+    transform: translate(-50%, -50%);  /*  Ajuste perfecto del centro */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     padding: 20px;
     color: #777;
-    background: white;   /* ✅ Fondo para que se vea bien */
     border-radius: 10px;
     z-index: 10;
-    white-space: nowrap; /* ✅ Evita que se rompa en varias líneas */
+    white-space: nowrap; /*  Evita que se rompa en varias líneas */
 }
 
 /* ============================================ */

@@ -1,12 +1,12 @@
 package com.registro_y_iniciosesion_backend.controladores;
-
-
-import com.registro_y_iniciosesion_backend.entidades.Permisos;
 import com.registro_y_iniciosesion_backend.entidades.Rol;
 import com.registro_y_iniciosesion_backend.servicios.PermisosService;
 import com.registro_y_iniciosesion_backend.servicios.RolService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -57,35 +57,36 @@ public class RolController {
     }
 
 
-    //////////////////////////////////
-    //////////// PERMISO /////////////
-    //////////////////////////////////
+    ////////////////////////////////////////
+    //////////// PERMISO x ROL /////////////
+    ////////////////////////////////////////
 
 
-
-
-
-
-
-
-    // Agregar un permiso a un rol
-    @PostMapping("/{idRol}/agregar-permiso/{idPermiso}")
-    public Rol agregarPermiso(
-            @PathVariable Long idRol,           // ID del rol
-            @PathVariable Long idPermiso) {     // ID del permiso
-
-        // Buscar el rol y permiso en BD
-        Rol rol = rolService.buscarPorId(idRol);
-        Permisos permiso = permisosService.buscarPorId(idPermiso);
-
-        // Validar que existan
-        if (rol == null || permiso == null) {
-            return null; // puedes retornar un ResponseEntity más elegante si quieres
-        }
-
-        // Agregar el permiso al rol y guardar
-        return rolService.agregarPermiso(rol, permiso);
+    /*** Obtiene todos los permisos con indicación de si están asignados al rol  */
+    @GetMapping("/{rolId}/permisos-con-estado")
+    public List<Map<String, Object>> obtenerPermisosConEstado(@PathVariable Long rolId) {
+        return rolService.obtenerPermisosConEstado(rolId);
     }
+
+    /*** Actualiza los permisos de un rol (asigna y desasigna)  */
+    @PutMapping("/{rolId}/permisos")
+    public Map<String, String> actualizarPermisosDeRol(
+            @PathVariable Long rolId,
+            @RequestBody Map<String, List<Long>> datos) {
+
+        List<Long> permisosAAgregar = datos.get("permisosAAgregar");
+        List<Long> permisosAQuitar = datos.get("permisosAQuitar");
+
+        rolService.actualizarPermisosDeRol(rolId, permisosAAgregar, permisosAQuitar);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Permisos actualizados correctamente");
+        return respuesta;
+    }
+
+
+
+
 }
 
 

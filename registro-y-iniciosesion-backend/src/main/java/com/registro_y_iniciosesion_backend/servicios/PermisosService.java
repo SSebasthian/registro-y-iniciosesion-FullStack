@@ -85,6 +85,30 @@ public class PermisosService {
         return permisos;
     }
 
+
+    // NUEVO MÉTODO: Obtener todos los permisos con los roles asignados
+    public List<Map<String, Object>> obtenerPermisosConRoles() {
+        List<Permisos> permisos = permisosRepository.findAll();
+        List<Map<String, Object>> resultado = new ArrayList<>();
+
+        for (Permisos permiso : permisos) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", permiso.getId());
+            item.put("modulo", permiso.getModulo());
+            item.put("accion", permiso.getAccion());
+
+            // Obtener nombres de roles que tienen este permiso
+            List<String> rolesNombres = permisosRepository.findRolesNombresByPermisoId(permiso.getId());
+            item.put("rolesAsignados", rolesNombres);
+
+            resultado.add(item);
+        }
+
+        return resultado;
+    }
+
+
+
     public Long contarUsuariosPorPermiso(Long permisoId) {
         // Consulta nativa directa con jakarta.persistence
         Query query = entityManager.createNativeQuery(

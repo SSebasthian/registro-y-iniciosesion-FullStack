@@ -10,6 +10,8 @@ import { PermisosUsuariosComponent } from '../../permisos/permisos-usuarios/perm
 import { PermisosRolComponent } from '../../permisos/permisos-rol/permisos-rol.component';
 import { PermisosPermisosxrolComponent } from '../../permisos/permisos-permisosxrol/permisos-permisosxrol.component';
 import { PermisosPermisosComponent } from '../../permisos/permisos-permisos/permisos-permisos.component';
+import { PermisosxrolPermisosService } from '../../../arquitectura/servicio/permisos/permisosxrol-permisos.service';
+import { Subscription } from 'rxjs';
 
 
 
@@ -29,50 +31,53 @@ export class PerfilComponent {
   modulosUnicos: string[] = [];
 
 
+  private subscriptions = new Subscription(); // Para manejar suscripciones
 
 
   // Inyección del servicio que se conecta con el backend
   constructor(
     private autenticadorService: AutenticadorService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private permisosxrolPermisosService: PermisosxrolPermisosService
   ) { }
 
   // Método que se ejecuta al cargar el componente
   ngOnInit() {
-
-
-    // 1. Verificar si hay sesión
+    // 1. Verificar sesión
     const usuario = localStorage.getItem('usuario');
-
-    // 2. Si NO hay usuario → lo saco
     if (!usuario) {
       this.router.navigate(['/autenticacion/acceso']);
       return;
     }
 
-    // 3. Si sí hay → cargar perfil
-    // Se llama al servicio para obtener el perfil del usuario
-    this.autenticadorService.getPerfil().subscribe({
+    // 2. Cargar perfil inicial
+    this.cargarPerfil();
 
+    // 3. ESCUCHAR CAMBIOS DEL DIALOG - EDITAR PERFIL
+    this.subscriptions.add(
+      this.autenticadorService.perfilActualizado$.subscribe(() => {
+        this.cargarPerfil();
+      })
+    );
 
-      // Si la petición es exitosa
-      next: (datos) => {
-        this.Usuario = datos; // Guardamos los datos
-        this.agruparPermisos(); // Agrupamos los permisos por módulo
-        //console.log(datos); // Mostramos en consola
-      },
-      error: (err) => {
-        console.error(err); // Mostramos el error
-        // Si falla (ej: usuario borrado) → cerrar sesión
-        this.router.navigate(['/autenticacion/acceso']);
-      }
-    });
+    // 4. ESCUCHAR CAMBIOS EN PERMISOS DE ROLES
+    this.subscriptions.add(
+      this.permisosxrolPermisosService.permisosDeRolActualizados$.subscribe((rolIdModificado) => {
+        console.log(`📢 Rol ${rolIdModificado} ha cambiado sus permisos`);
 
-    // ESCUCHAR CAMBIOS DEL DIALOG - EDITAR PERFIL
-    this.autenticadorService.perfilActualizado$.subscribe(() => {
-      this.cargarPerfil();
-    });
+        // Verificar si el rol modificado es el del usuario actual
+        if (this.Usuario?.rol?.id === rolIdModificado) {
+          console.log('🔄 Actualizando perfil porque el rol del usuario cambió');
+          this.cargarPerfil();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    // Limpiar suscripciones para evitar memory leaks
+    this.subscriptions.unsubscribe();
   }
 
 
@@ -124,6 +129,7 @@ export class PerfilComponent {
       width: '800px',
       height: '500px'
     });
+    
   }
 
   permisosxRol() {
