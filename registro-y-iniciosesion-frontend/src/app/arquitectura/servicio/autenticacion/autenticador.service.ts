@@ -63,48 +63,4 @@ export class AutenticadorService {
 
   
 
-  // ============================================
-  // PERFIL DE USUARIO
-  // ============================================
-
-  // ----------------
-  // OBTENER PERFIL--
-  // ----------------
-  // Obtiene el perfil del usuario logueado desde el backend  
-  getPerfil(): Observable<any> {
-    // Se obtiene el usuario guardado en el localStorage
-    // Este valor se guarda al iniciar sesión
-    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
-    // Se construye la petición GET hacia el backend
-    // http://localhost:8080/usuarios/perfil/admin
-    return this.http.get(`${this.apiUrl}usuarios/perfil/${usuarioGuardado.usuario}`);
-  }
-
-
-  // --------------------
-  // ACTUALIZAR PERFIL---
-  // --------------------
-  actualizarPerfil(usuario: string, datos: any) {
-    return this.http.put(`${this.apiUrl}usuarios/perfil/${usuario}`, datos);
-  }
-
-
-  // -----------------
-  // CAMBIOS PERFIL---
-  // -----------------
-  notificarPerfilActualizado() {
-    this.perfilActualizado.next(true);
-  }
-
-  
-  // -----------------------
-  // CAMBIAR CLAVE PERFIL---
-  // -----------------------
-  cambiarClave(usuario: string, actual: string, nueva: string) {
-    return this.http.put(`${this.apiUrl}usuarios/perfil/${usuario}/clave`, {
-      actual,
-      nueva
-    });
-  }
-
 }

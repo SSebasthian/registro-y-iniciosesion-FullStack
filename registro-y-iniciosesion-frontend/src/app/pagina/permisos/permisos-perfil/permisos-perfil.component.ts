@@ -7,7 +7,8 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticacion/autenticador.service';
+import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
+
 
 
 
@@ -21,7 +22,7 @@ import { AutenticadorService } from '../../../arquitectura/servicio/autenticacio
 export class PermisosPerfilComponent {
 
   constructor(
-    private autenticadorService: AutenticadorService,
+    private perfilService: PerfilService,
     private dialog: MatDialogRef<PermisosPerfilComponent>
   ) { }
 
@@ -41,7 +42,7 @@ export class PermisosPerfilComponent {
   }
 
   cargarPerfil() {
-    this.autenticadorService.getPerfil().subscribe({
+    this.perfilService.getPerfil().subscribe({
       next: (datos) => {
         this.usuario = datos;
         console.log('Se Cargó el Usuario:', datos.usuario);
@@ -60,7 +61,7 @@ export class PermisosPerfilComponent {
     const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
 
 
-    this.autenticadorService.actualizarPerfil(
+    this.perfilService.actualizarPerfil(
       usuarioGuardado.usuario,
       this.usuario
     ).subscribe({
@@ -71,7 +72,7 @@ export class PermisosPerfilComponent {
         this.usuario = res; //refrescar datos
         this.editando = false;
         // AVISAR AL PERFIL DEL CAMBIO
-        this.autenticadorService.notificarPerfilActualizado();
+        this.perfilService.notificarPerfilActualizado();
       },
 
       error: (err) => {
@@ -99,7 +100,7 @@ export class PermisosPerfilComponent {
       console.log(this.mensajeclave);
       return;
     }
-    this.autenticadorService.cambiarClave(
+    this.perfilService.cambiarClave(
       usuarioGuardado.usuario,
       this.claveActual,
       this.claveNueva

@@ -9,7 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
 import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
-import { AutenticadorService } from './../../../arquitectura/servicio/autenticacion/autenticador.service';
+import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
 
 
 
@@ -34,7 +34,7 @@ export class PermisosRolComponent implements OnInit {
     private dialog: MatDialogRef<PermisosRolComponent>,
     private rolPermisosService: RolPermisosService,
     private usuariosPermisosService: UsuariosPermisosService,
-    private autenticadorService: AutenticadorService
+    private perfilService: PerfilService
   ) { }
 
   ngOnInit() {
@@ -48,7 +48,7 @@ export class PermisosRolComponent implements OnInit {
 
   // Nuevo método: Cargar usuario actual para saber su rol
   cargarUsuarioActual() {
-    this.autenticadorService.getPerfil().subscribe({
+    this.perfilService.getPerfil().subscribe({
       next: (datos) => {
         this.usuarioActual = datos;
         //console.log('Usuario actual - Rol ID:', this.usuarioActual?.rol?.id);
@@ -103,7 +103,7 @@ export class PermisosRolComponent implements OnInit {
           //console.log('Mi rol fue modificado, actualizando perfil...');
 
           // Forzar actualización del perfil
-          this.autenticadorService.notificarPerfilActualizado();
+          this.perfilService.notificarPerfilActualizado();
 
           // También actualizar localStorage directamente
           const usuarioLS = JSON.parse(localStorage.getItem('usuario') || '{}');

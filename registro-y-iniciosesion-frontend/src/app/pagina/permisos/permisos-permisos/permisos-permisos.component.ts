@@ -363,7 +363,7 @@ export class PermisosPermisosComponent implements OnInit {
         
         alert('Permiso actualizado correctamente');
 
-        this.dialog.close(true); 
+        
       },
       error: (err) => console.error(err)
     });

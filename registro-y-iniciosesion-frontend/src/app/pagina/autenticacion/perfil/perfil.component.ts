@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon'
-import { AutenticadorService } from '../../../arquitectura/servicio/autenticacion/autenticador.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -11,6 +10,9 @@ import { PermisosRolComponent } from '../../permisos/permisos-rol/permisos-rol.c
 import { PermisosPermisosxrolComponent } from '../../permisos/permisos-permisosxrol/permisos-permisosxrol.component';
 import { PermisosPermisosComponent } from '../../permisos/permisos-permisos/permisos-permisos.component';
 import { PermisosxrolPermisosService } from '../../../arquitectura/servicio/permisos/permisosxrol-permisos.service';
+import { AutenticadorService } from '../../../arquitectura/servicio/autenticacion/autenticador.service';
+import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
+import { PermisosPermisosService } from '../../../arquitectura/servicio/permisos/permisos-permisos.service';
 import { Subscription } from 'rxjs';
 
 
@@ -36,10 +38,12 @@ export class PerfilComponent {
 
   // Inyección del servicio que se conecta con el backend
   constructor(
-    private autenticadorService: AutenticadorService,
     private router: Router,
     private dialog: MatDialog,
-    private permisosxrolPermisosService: PermisosxrolPermisosService
+    private autenticadorService: AutenticadorService,
+    private perfilService: PerfilService,
+    private permisosxrolPermisosService: PermisosxrolPermisosService,
+    private permisosPermisosService: PermisosPermisosService
   ) { }
 
   // Método que se ejecuta al cargar el componente
@@ -56,7 +60,7 @@ export class PerfilComponent {
 
     // 3. ESCUCHAR CAMBIOS DEL DIALOG - EDITAR PERFIL
     this.subscriptions.add(
-      this.autenticadorService.perfilActualizado$.subscribe(() => {
+      this.perfilService.perfilActualizado$.subscribe(() => {
         this.cargarPerfil();
       })
     );
@@ -64,11 +68,25 @@ export class PerfilComponent {
     // 4. ESCUCHAR CAMBIOS EN PERMISOS DE ROLES
     this.subscriptions.add(
       this.permisosxrolPermisosService.permisosDeRolActualizados$.subscribe((rolIdModificado) => {
-        console.log(`📢 Rol ${rolIdModificado} ha cambiado sus permisos`);
+        console.log(`Rol ${rolIdModificado} ha cambiado sus permisos`);
 
         // Verificar si el rol modificado es el del usuario actual
         if (this.Usuario?.rol?.id === rolIdModificado) {
-          console.log('🔄 Actualizando perfil porque el rol del usuario cambió');
+          console.log('Actualizando perfil porque el rol del usuario cambió');
+          this.cargarPerfil();
+        }
+      })
+    );
+
+    // 5: ESCUCHAR CAMBIOS EN PERMISOS (cuando se crean/editan/eliminan)
+    this.subscriptions.add(
+      this.permisosPermisosService.permisosActualizados$.subscribe(() => {
+        console.log('Los permisos han sido modificados');
+        
+        // Verificar si el usuario actual tiene algún permiso afectado
+        // Recargamos el perfil para actualizar los permisos del usuario
+        if (this.Usuario?.rol?.permisos) {
+          console.log('Actualizando perfil porque los permisos cambiaron');
           this.cargarPerfil();
         }
       })
@@ -141,7 +159,7 @@ export class PerfilComponent {
 
 
   cargarPerfil() {
-    this.autenticadorService.getPerfil().subscribe({
+    this.perfilService.getPerfil().subscribe({
       next: (datos) => {
         this.Usuario = datos;
         this.agruparPermisos();

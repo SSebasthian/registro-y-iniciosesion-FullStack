@@ -10,7 +10,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
 import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
-import { AutenticadorService } from './../../../arquitectura/servicio/autenticacion/autenticador.service';
+import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
 
 
 
@@ -40,7 +40,7 @@ export class PermisosUsuariosComponent {
     private dialog: MatDialogRef<PermisosUsuariosComponent>,
     private usuariosPermisosService: UsuariosPermisosService,
     private rolPermisosService: RolPermisosService,
-    private autenticadorService: AutenticadorService
+    private perfilService: PerfilService
   ) { }
 
   ngOnInit() {
@@ -123,7 +123,7 @@ export class PermisosUsuariosComponent {
           localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
 
           // NOTIFICAR A TODA LA APP
-          this.autenticadorService.notificarPerfilActualizado();
+          this.perfilService.notificarPerfilActualizado();
         }
 
         // refrescar lista
