@@ -10,7 +10,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { PermisosPermisosService } from '../../../arquitectura/servicio/permisos/permisos-permisos.service';
-
+import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
 
 @Component({
   selector: 'app-permisos-permisos',
@@ -58,9 +58,9 @@ export class PermisosPermisosComponent implements OnInit {
   buscarModuloNuevoActivo: boolean = false;
   buscarAccionActivo: boolean = false;
 
-  modulosFiltradosNuevosEditar: string[] = [];
-  accionesDisponiblesPorModuloEditar: string[] = [];
-  buscarModuloNuevoEditarActivo: boolean = false;
+  modulosFiltradosEditar: string[] = [];
+  accionesFiltradasEditar: string[] = [];
+  buscarModuloEditarActivo: boolean = false;
   buscarAccionEditarActivo: boolean = false;
 
 
@@ -83,6 +83,7 @@ export class PermisosPermisosComponent implements OnInit {
   constructor(
     private dialog: MatDialogRef<PermisosPermisosComponent>,
     private permisosPermisosService: PermisosPermisosService,
+    public permisoModuloService: PermisoModuloService
   ) { }
 
 
@@ -211,6 +212,14 @@ export class PermisosPermisosComponent implements OnInit {
 
   /** Crea un nuevo permiso en el backend */
   crearNuevoPermiso() {
+
+    // Verificar permiso para editar
+    if (!this.permisoModuloService.puede('permisos', 'crear')) {
+      alert('No tienes permiso para editar permisos');
+      return;
+    }
+
+
     // Preparar los datos antes de enviar
     let moduloFinal = this.nuevoPermiso.modulo;
     let accionFinal = this.nuevoPermiso.accion;
@@ -271,6 +280,13 @@ export class PermisosPermisosComponent implements OnInit {
 
   /** Abre el formulario para editar un permiso existente */
   editarPermiso(permiso: any) {
+
+    // Verificar permiso para editar
+    if (!this.permisoModuloService.puede('permisos', 'editar')) {
+      alert('No tienes permiso para editar permisos');
+      return;
+    }
+
     this.permisoSeleccionado = {
       ...permiso,
       moduloOriginal: permiso.modulo,
@@ -378,6 +394,12 @@ export class PermisosPermisosComponent implements OnInit {
 
   /** Elimina un permiso del sistema */
   eliminarPermiso(permiso: any) {
+    // Verificar permiso para eliminar
+    if (!this.permisoModuloService.puede('permisos', 'eliminar')) {
+      alert('No tienes permiso para eliminar permisos');
+      return;
+    }
+
     if (!confirm(`¿Seguro que quieres eliminar el permiso "${permiso.modulo} - ${permiso.accion}"?`)) {
       return;
     }
@@ -610,79 +632,42 @@ export class PermisosPermisosComponent implements OnInit {
   // ============================================
 
   /** Obtiene el módulo actual en edición */
-  obtenerModuloActualEditar(): string {
-    if (this.permisoSeleccionado?.modulo === 'otro' && this.permisoSeleccionado?.moduloNuevo) {
-      return this.limpiarTexto(this.permisoSeleccionado.moduloNuevo);
-    } else if (this.permisoSeleccionado?.modulo && this.permisoSeleccionado?.modulo !== 'otro') {
-      return this.limpiarTexto(this.permisoSeleccionado.modulo);
-    }
-    return '';
-  }
-
-  /** Filtra módulos existentes mientras escribe en "Nuevo Módulo" (edición) */
-  filtrarModulosNuevosEditar() {
-    const texto = this.permisoSeleccionado?.moduloNuevo?.toLowerCase() || '';
-    this.buscarModuloNuevoEditarActivo = texto.length > 0;
+  filtrarModulosEditar() {
+    const texto = this.permisoSeleccionado?.modulo?.toLowerCase() || '';
+    this.buscarModuloEditarActivo = texto.length > 0;
 
     if (texto.length > 0) {
-      this.modulosFiltradosNuevosEditar = this.modulosDisponibles
-        .filter(modulo => modulo.toLowerCase().includes(texto))
-        .slice(0, 10);
+        this.modulosFiltradosEditar = this.modulosDisponibles
+            .filter(modulo => modulo.toLowerCase().includes(texto))
+            .slice(0, 10);
     } else {
-      this.modulosFiltradosNuevosEditar = [];
+        this.modulosFiltradosEditar = [];
     }
-  }
+}
 
-  /** Filtra acciones existentes para el módulo actual (edición) */
-  filtrarAccionesPorModuloEditar() {
-    const texto = this.permisoSeleccionado?.accionNueva?.toLowerCase() || '';
+/** Filtra acciones existentes mientras escribe en edición */
+filtrarAccionesEditar() {
+    const texto = this.permisoSeleccionado?.accion?.toLowerCase() || '';
     this.buscarAccionEditarActivo = texto.length > 0;
 
-    if (!texto.length) {
-      this.accionesDisponiblesPorModuloEditar = [];
-      return;
-    }
-
-    const moduloActual = this.obtenerModuloActualEditar();
-
-    if (!moduloActual) {
-      this.accionesDisponiblesPorModuloEditar = [];
-      return;
-    }
-
-    // Obtener acciones únicas que ya existen para este módulo
-    const accionesExistentes = [...new Set(
-      this.permisos
-        .filter(p => p.modulo === moduloActual)
-        .map(p => p.accion)
-    )];
-
-    // Filtrar acciones que coinciden con lo que escribe el usuario
-    this.accionesDisponiblesPorModuloEditar = accionesExistentes
-      .filter(accion => accion.toLowerCase().includes(texto))
-      .slice(0, 10);
-
-    // Verificar si la acción exacta ya existe
-    const accionLimpia = this.limpiarTexto(texto);
-    const yaExiste = accionesExistentes.some(a => a === accionLimpia);
-
-    if (yaExiste && texto.trim() !== '') {
-      this.mensajeError = `❌ La acción "${accionLimpia}" ya existe para el módulo "${moduloActual}"`;
+    if (texto.length > 0) {
+        // Obtener acciones existentes de todos los módulos o del módulo actual
+        const accionesExistentes = [...new Set(this.permisos.map(p => p.accion))];
+        this.accionesFiltradasEditar = accionesExistentes
+            .filter(accion => accion.toLowerCase().includes(texto))
+            .slice(0, 10);
     } else {
-      this.mensajeError = '';
+        this.accionesFiltradasEditar = [];
     }
-  }
+}
 
-  /** Verifica si una acción ya existe en el módulo actual (edición) */
-  existeAccionEnModuloEditar(accion: string): boolean {
-    const moduloActual = this.obtenerModuloActualEditar();
-    if (!moduloActual) return false;
-
-    return this.permisos.some(p =>
-      p.modulo === moduloActual &&
-      p.accion === accion
+/** Verifica si una acción ya existe (excluyendo el permiso actual) */
+existeAccionEnEdicion(accion: string): boolean {
+    return this.permisos.some(p => 
+        p.id !== this.permisoSeleccionado?.id && 
+        p.accion === accion
     );
-  }
+}
 
 
 

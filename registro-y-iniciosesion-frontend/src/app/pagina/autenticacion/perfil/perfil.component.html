@@ -18,7 +18,7 @@
             <mat-icon>assignment_turned_in</mat-icon>
         </button>
 
-        <button class="btn-accion" (click)="permisosPermisos()" matTooltip="Permisos" matTooltipPosition="left"
+        <button class="btn-accion" *ngIf="permisoModuloService.puede('permisos', 'ver')" (click)="permisosPermisos()" matTooltip="Permisos" matTooltipPosition="left"
             matTooltipHideDelay="100">
             <mat-icon>lock_person </mat-icon>
         </button>
