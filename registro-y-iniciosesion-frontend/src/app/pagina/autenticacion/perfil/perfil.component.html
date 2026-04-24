@@ -18,13 +18,13 @@
             <mat-icon>assignment_turned_in</mat-icon>
         </button>
 
-        <button class="btn-accion" *ngIf="permisoModuloService.puede('permisos', 'ver')" (click)="permisosPermisos()" matTooltip="Permisos" matTooltipPosition="left"
-            matTooltipHideDelay="100">
+        <button class="btn-accion" *ngIf="permisoModuloService.puede('permisos', 'ver')" (click)="permisosPermisos()" 
+            matTooltip="Permisos" matTooltipPosition="left" matTooltipHideDelay="100">
             <mat-icon>lock_person </mat-icon>
         </button>
 
-        <button class="btn-accion" (click)="permisosxRol()" matTooltip="Permisos por Rol" matTooltipPosition="left"
-            matTooltipHideDelay="100">
+        <button class="btn-accion" *ngIf="permisoModuloService.puede('permisos', 'asignar')" (click)="permisosxRol()" 
+            matTooltip="Permisos por Rol" matTooltipPosition="left" matTooltipHideDelay="100">
             <mat-icon>verified_user </mat-icon>
         </button>
 

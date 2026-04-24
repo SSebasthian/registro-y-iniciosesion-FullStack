@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PermisosxrolPermisosService } from '../../../arquitectura/servicio/permisos/permisosxrol-permisos.service';
-
+import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
 
 
 
@@ -34,7 +34,8 @@ export class PermisosPermisosxrolComponent {
 
   constructor(
     private dialogRef: MatDialogRef<PermisosPermisosxrolComponent>,
-    private permisosxrolPermisosService: PermisosxrolPermisosService
+    private permisosxrolPermisosService: PermisosxrolPermisosService,
+    public permisoModuloService: PermisoModuloService
   ) {
     this.cargarRoles();
     this.cargarTodosLosPermisosConRoles();
@@ -213,6 +214,12 @@ export class PermisosPermisosxrolComponent {
   }
 
   guardarCambios() {
+    // Verificar permiso para crear
+    if (!this.permisoModuloService.puede('permisos', 'asignar')) {
+      alert('No tienes permiso para asignar permisos a roles');
+      return;
+    }
+
     if (!this.hayCambios) {
       return;
     }
