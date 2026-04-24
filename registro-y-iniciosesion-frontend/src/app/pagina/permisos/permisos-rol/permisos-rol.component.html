@@ -30,11 +30,12 @@
                 </div>
 
                 <div class="acciones">
-                    <a class="editar" (click)="editarRol(rol)">
+                    <a class="editar" (click)="editarRol(rol)" *ngIf="permisoModuloService.puede('roles', 'editar')">
                         <mat-icon>edit</mat-icon>
                     </a>
 
-                    <a class="eliminar" (click)="eliminarRol(rol)">
+                    <a class="eliminar" (click)="eliminarRol(rol)"
+                        *ngIf="permisoModuloService.puede('roles', 'eliminar')">
                         <mat-icon>delete</mat-icon>
                     </a>
                 </div>
@@ -45,29 +46,67 @@
         <!-- EDITAR USUARIO -->
         <div class="editar-rol" *ngIf="editando">
             <div class="form-grid">
-
                 <mat-form-field appearance="outline">
                     <mat-label>Rol</mat-label>
-                    <input matInput [(ngModel)]="rolSeleccionado.nombre">
+                    <input type="text" matInput [(ngModel)]="rolSeleccionado.nombre" [matAutocomplete]="autoRolEditar"
+                        (input)="filtrarRolesEditar()" (focus)="limpiarError()"
+                        placeholder="Ejemplo: administrador, invitado, editor, etc">
+
+                    <mat-autocomplete #autoRolEditar="matAutocomplete">
+                        <mat-option *ngFor="let rol of rolesFiltradosSugerenciaEditar" [value]="rol.nombre">
+                            <div class="sugerencia-option">
+                                <mat-icon>warning</mat-icon>
+                                <span>{{ rol.nombre | titlecase }}</span>
+                                <small class="ya-existe"> - Ya existe</small>
+                            </div>
+                        </mat-option>
+                        <mat-option *ngIf="rolesFiltradosSugerenciaEditar.length === 0 && buscarRolEditarActivo"
+                            disabled>
+                            No hay roles coincidentes. El nombre está disponible.
+                        </mat-option>
+                    </mat-autocomplete>
                 </mat-form-field>
 
+                <!-- Mensaje de error en edición -->
+                <div class="error-mensaje" *ngIf="mensajeErrorEditar">
+                    <mat-icon>warning</mat-icon>
+                    {{ mensajeErrorEditar }}
+                </div>
             </div>
         </div>
 
         <!-- CREAR USUARIO -->
 
         <div class="crear-rol" *ngIf="modoCrearRol">
-
             <mat-dialog-content class="form-grid">
-
                 <mat-form-field appearance="outline">
-                    <mat-label>Nombre</mat-label>
-                    <input matInput [(ngModel)]="nuevoRol.nombre" required>
+                    <mat-label>Nuevo Rol</mat-label>
+                    <input type="text" matInput [(ngModel)]="nuevoRol.nombre" [matAutocomplete]="autoRolNuevo"
+                        (input)="filtrarRolesNuevos()" (focus)="limpiarError()"
+                        placeholder="Ejemplo: administrador, invitado, editor, etc">
+
+                    <mat-autocomplete #autoRolNuevo="matAutocomplete">
+                        <mat-option *ngFor="let rol of rolesFiltradosSugerencia" [value]="rol.nombre">
+                            <div class="sugerencia-option">
+                                <mat-icon>lightbulb</mat-icon>
+                                <span>{{ rol.nombre | titlecase }}</span>
+                                <small class="ya-existe"> - Ya existe</small>
+                            </div>
+                        </mat-option>
+                        <mat-option *ngIf="rolesFiltradosSugerencia.length === 0 && buscarRolActivo" disabled>
+                            No hay roles coincidentes. Se creará uno nuevo.
+                        </mat-option>
+                    </mat-autocomplete>
                 </mat-form-field>
 
+                <!-- Mensaje de error -->
+                <div class="error-mensaje" *ngIf="mensajeError">
+                    <mat-icon>warning</mat-icon>
+                    {{ mensajeError }}
+                </div>
             </mat-dialog-content>
-
         </div>
+
 
         <!-- VER ROLES POR USUARIO -->
         <div class="editar-usuario-clave" *ngIf="verRolesxUsuarios">
@@ -104,7 +143,8 @@
             </div>
 
             <!-- LISTA -->
-            <a *ngIf="!editando && !modoCrearRol && !verRolesxUsuarios" (click)="crearRol()">
+            <a *ngIf="!editando && !modoCrearRol && !verRolesxUsuarios && permisoModuloService.puede('roles', 'crear')"
+                (click)="crearRol()">
                 <mat-icon>control_point</mat-icon>
                 Crear
             </a>

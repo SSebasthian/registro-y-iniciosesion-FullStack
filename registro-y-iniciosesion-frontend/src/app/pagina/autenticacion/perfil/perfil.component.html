@@ -13,8 +13,8 @@
             <mat-icon>accessibility_new</mat-icon>
         </button>
 
-        <button class="btn-accion" (click)="permisosRol()" matTooltip="Rol" matTooltipPosition="left"
-            matTooltipHideDelay="100">
+        <button class="btn-accion" *ngIf="permisoModuloService.puede('roles', 'ver')" (click)="permisosRol()" 
+            matTooltip="Rol" matTooltipPosition="left" matTooltipHideDelay="100">
             <mat-icon>assignment_turned_in</mat-icon>
         </button>
 
