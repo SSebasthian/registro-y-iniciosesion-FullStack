@@ -68,11 +68,11 @@ export class PerfilComponent {
     // 4. ESCUCHAR CAMBIOS EN PERMISOS DE ROLES
     this.subscriptions.add(
       this.permisosxrolPermisosService.permisosDeRolActualizados$.subscribe((rolIdModificado) => {
-        console.log(`Rol ${rolIdModificado} ha cambiado sus permisos`);
+        //console.log(`Rol ${rolIdModificado} ha cambiado sus permisos`);
 
         // Verificar si el rol modificado es el del usuario actual
         if (this.Usuario?.rol?.id === rolIdModificado) {
-          console.log('Actualizando perfil porque el rol del usuario cambió');
+          //console.log('Actualizando perfil porque el rol del usuario cambió');
           this.cargarPerfil();
         }
       })
@@ -81,12 +81,12 @@ export class PerfilComponent {
     // 5: ESCUCHAR CAMBIOS EN PERMISOS (cuando se crean/editan/eliminan)
     this.subscriptions.add(
       this.permisosPermisosService.permisosActualizados$.subscribe(() => {
-        console.log('Los permisos han sido modificados');
-        
+        //console.log('Los permisos han sido modificados');
+
         // Verificar si el usuario actual tiene algún permiso afectado
         // Recargamos el perfil para actualizar los permisos del usuario
         if (this.Usuario?.rol?.permisos) {
-          console.log('Actualizando perfil porque los permisos cambiaron');
+          //console.log('Actualizando perfil porque los permisos cambiaron');
           this.cargarPerfil();
         }
       })
@@ -147,7 +147,7 @@ export class PerfilComponent {
       width: '800px',
       height: '500px'
     });
-    
+
   }
 
   permisosxRol() {
@@ -159,13 +159,39 @@ export class PerfilComponent {
 
 
   cargarPerfil() {
+    // Intentar cargar desde localStorage primero (opcional - para UI más rápida)
+    const permisosCache = this.perfilService.obtenerPermisosLocalStorage();
+    const infoCache = this.perfilService.obtenerInfoPermisosLocalStorage();
+
+    if (permisosCache && infoCache) {
+      // Construir un objeto usuario temporal con los datos de caché
+      const usuarioTemp = {
+        id: infoCache.usuarioId,
+        usuario: infoCache.usuario,
+        rol: {
+          id: infoCache.rolId,
+          nombre: infoCache.rolNombre,
+          permisos: permisosCache
+        }
+      };
+
+      // Mostrar datos desde caché instantáneamente
+      this.Usuario = usuarioTemp;
+      this.agruparPermisosDesdeCache(permisosCache);
+      //console.log('Mostrando permisos desde localStorage (caché)');
+    }
+
+    // Siempre cargar desde backend para actualizar
     this.perfilService.getPerfil().subscribe({
       next: (datos) => {
         this.Usuario = datos;
         this.agruparPermisos();
+        //console.log('Perfil y permisos cargados correctamente');
+        //console.log('Permisos guardados en localStorage:', this.perfilService.obtenerPermisosLocalStorage()?.length);
       },
       error: (err) => {
         console.error(err);
+        console.error('❌ Error cargando perfil:', err);
         this.router.navigate(['/autenticacion/acceso']);
       }
     });
@@ -192,6 +218,27 @@ export class PerfilComponent {
     this.modulosUnicos = Object.keys(this.permisosAgrupados);
 
     // seleccionar primero automáticamente
+    if (this.modulosUnicos.length > 0) {
+      this.seleccionarModulo(this.modulosUnicos[0]);
+    }
+  }
+
+  // Método adicional para agrupar desde caché
+  agruparPermisosDesdeCache(permisos: any[]) {
+    if (!permisos || permisos.length === 0) return;
+
+    const permisosOrdenados = [...permisos].sort((a: any, b: any) => a.id - b.id);
+
+    this.permisosAgrupados = permisosOrdenados.reduce((acc: any, permiso: any) => {
+      if (!acc[permiso.modulo]) {
+        acc[permiso.modulo] = [];
+      }
+      acc[permiso.modulo].push(permiso);
+      return acc;
+    }, {});
+
+    this.modulosUnicos = Object.keys(this.permisosAgrupados);
+
     if (this.modulosUnicos.length > 0) {
       this.seleccionarModulo(this.modulosUnicos[0]);
     }

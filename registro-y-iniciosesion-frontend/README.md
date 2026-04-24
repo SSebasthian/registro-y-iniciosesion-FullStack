@@ -27,4 +27,4 @@
 `ng generate service arquitectura/servicio/permisos/permisosxrol-permisos` (Servicio para PERMISOS X ROL)<br>
 `ng generate service arquitectura/servicio/autenticacion/perfil` (Servicio Autenticacion)<br>
 
-
+`ng generate service arquitectura/servicio/autenticacion/permiso-modulo` (Servicio PERMISOS X MODULO)<br>

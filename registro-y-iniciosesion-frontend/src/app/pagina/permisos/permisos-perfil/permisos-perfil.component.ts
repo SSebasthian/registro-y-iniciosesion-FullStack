@@ -67,7 +67,7 @@ export class PermisosPerfilComponent {
     ).subscribe({
 
       next: (res:any) => {
-        console.log('Perfil actualizado', res.usuario);
+        console.log('Perfil actualizado: Nombre', res.nombre);
         //console.log('Perfil actualizado', res);
         this.usuario = res; //refrescar datos
         this.editando = false;

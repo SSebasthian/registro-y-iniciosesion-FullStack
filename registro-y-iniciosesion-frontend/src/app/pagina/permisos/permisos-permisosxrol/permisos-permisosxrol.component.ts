@@ -127,7 +127,7 @@ export class PermisosPermisosxrolComponent {
 
   // Cuando cambia el rol seleccionado
   onRolChange() {
-    console.log('📌 Rol seleccionado:', this.rolSeleccionado);
+    //console.log('Rol seleccionado:', this.rolSeleccionado);
 
     if (!this.rolSeleccionado) {
       this.cargarTodosLosPermisosConRoles();

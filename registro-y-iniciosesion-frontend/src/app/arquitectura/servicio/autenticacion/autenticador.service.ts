@@ -1,12 +1,14 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 import { inicioSesionSolicitud } from '../../interface/inicioSesionSolicitud.interface';
 import { inicioSesionRespuesta } from '../../interface/inicioSesionRespuesta.interface';
 import { registroSolicitud } from '../../interface/registroSolicitud.interface';
 import { registroRespuesta } from '../../interface/registroRespuesta.interface';
+import { PerfilService } from './perfil.service';
+
 
 
 @Injectable({
@@ -20,7 +22,10 @@ export class AutenticadorService {
   perfilActualizado$ = this.perfilActualizado.asObservable();
 
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private perfilService: PerfilService
+  ) { }
 
 
 
@@ -49,6 +54,8 @@ export class AutenticadorService {
   // CERRAR PERFIL---
   // ----------------
   cerrarSesion() {
+    // Limpiar permisos antes de cerrar sesión
+    this.perfilService.limpiarPermisosLocalStorage();
     // Elimina el usuario del localStorage para cerrar sesión
     localStorage.removeItem('usuario');
   }
