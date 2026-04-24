@@ -34,11 +34,12 @@
                 </div>
 
                 <div class="acciones">
-                    <a class="editar" (click)="editarUsuario(usuario)">
+                     <!-- EDITAR - Solo si tiene permiso -->
+                    <a class="editar" (click)="editarUsuario(usuario)" *ngIf="permisoModuloService.puede('usuarios', 'editar')">
                         <mat-icon>edit</mat-icon>
                     </a>
 
-                    <a class="eliminar" (click)="eliminarUsuario(usuario)">
+                    <a class="eliminar" (click)="eliminarUsuario(usuario)" *ngIf="permisoModuloService.puede('usuarios', 'eliminar')">
                         <mat-icon>delete</mat-icon>
                     </a>
                 </div>
@@ -179,7 +180,7 @@
         </div>
 
         <!-- LISTA -->
-        <a *ngIf="!editando && !modoPassword && !modoCrearUsuario" (click)="crearUsuario()">
+        <a *ngIf="!editando && !modoPassword && !modoCrearUsuario && permisoModuloService.puede('usuarios', 'crear')" (click)="crearUsuario()" >
             <mat-icon>person_add</mat-icon>
             Crear
         </a>

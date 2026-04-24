@@ -11,6 +11,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
 import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
 import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
+import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
 
 
 
@@ -40,7 +41,8 @@ export class PermisosUsuariosComponent {
     private dialog: MatDialogRef<PermisosUsuariosComponent>,
     private usuariosPermisosService: UsuariosPermisosService,
     private rolPermisosService: RolPermisosService,
-    private perfilService: PerfilService
+    private perfilService: PerfilService,
+    public permisoModuloService: PermisoModuloService
   ) { }
 
   ngOnInit() {
@@ -94,6 +96,12 @@ export class PermisosUsuariosComponent {
    *** Abre formulario de edición de usuario ****
    **********************************************/
   editarUsuario(usuario: any) {
+    // Verificar permiso para editar
+    if (!this.permisoModuloService.puede('usuarios', 'editar')) {
+      alert('No tienes permiso para editar usuarios');
+      return;
+    }
+
     this.usuarioSeleccionado = { ...usuario };
     this.usuarioOriginal = usuario.usuario;
     this.editando = true;
@@ -105,6 +113,14 @@ export class PermisosUsuariosComponent {
    **** Guarda cambios del usuario editado ******
    **********************************************/
   guardarUsuario() {
+
+     // Verificar permiso para editar
+    if (!this.permisoModuloService.puede('usuarios', 'editar')) {
+      alert('No tienes permiso para editar usuarios');
+      return;
+    }
+
+
     const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}');
     this.usuariosPermisosService.actualizarUsuariosAdmin(this.usuarioOriginal, this.usuarioSeleccionado).subscribe({
 
@@ -142,6 +158,11 @@ export class PermisosUsuariosComponent {
    **** Activa modo cambio de contraseña ********
    **********************************************/
   abrirPassword() {
+    // Verificar permiso para cambiar contraseña
+    if (!this.permisoModuloService.puede('usuarios', 'editar')) {
+      alert('No tienes permiso para cambiar contraseñas');
+      return;
+    }
     this.modoPassword = true;
   }
 
@@ -202,6 +223,12 @@ export class PermisosUsuariosComponent {
    ** Activa formulario de creación de usuario **
    **********************************************/
   crearUsuario() {
+    // Verificar permiso para crear
+    if (!this.permisoModuloService.puede('usuarios', 'crear')) {
+      alert('No tienes permiso para crear usuarios');
+      return;
+    }
+
     this.modoCrearUsuario = true;
     this.editando = false;
     this.modoPassword = false;
@@ -270,6 +297,12 @@ export class PermisosUsuariosComponent {
    **** Elimina un usuario del sistema **********
    **********************************************/
   eliminarUsuario(usuario: any) {
+
+     // Verificar permiso para eliminar
+    if (!this.permisoModuloService.puede('usuarios', 'eliminar')) {
+      alert('No tienes permiso para eliminar usuarios');
+      return;
+    }
 
     const confirmacion = confirm(`¿Seguro que deseas eliminar al usuario ${usuario.usuario}?`);
 

@@ -13,6 +13,7 @@ import { PermisosxrolPermisosService } from '../../../arquitectura/servicio/perm
 import { AutenticadorService } from '../../../arquitectura/servicio/autenticacion/autenticador.service';
 import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
 import { PermisosPermisosService } from '../../../arquitectura/servicio/permisos/permisos-permisos.service';
+import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
 import { Subscription } from 'rxjs';
 
 
@@ -43,7 +44,8 @@ export class PerfilComponent {
     private autenticadorService: AutenticadorService,
     private perfilService: PerfilService,
     private permisosxrolPermisosService: PermisosxrolPermisosService,
-    private permisosPermisosService: PermisosPermisosService
+    private permisosPermisosService: PermisosPermisosService,
+    public permisoModuloService: PermisoModuloService
   ) { }
 
   // Método que se ejecuta al cargar el componente
