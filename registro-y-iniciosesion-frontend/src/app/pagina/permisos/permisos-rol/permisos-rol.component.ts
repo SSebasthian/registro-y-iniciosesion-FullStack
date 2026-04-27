@@ -43,6 +43,9 @@ export class PermisosRolComponent implements OnInit {
   buscarRolEditarActivo: boolean = false;
   mensajeErrorEditar: string = '';
 
+  mostrarModal: boolean = false;
+  rolAEliminar: any = null;
+
 
   constructor(
     private dialog: MatDialogRef<PermisosRolComponent>,
@@ -251,19 +254,35 @@ export class PermisosRolComponent implements OnInit {
   }
 
 
-  eliminarRol(rol: any) {
-    // Verificar permiso para eliminar
+
+  confirmarEliminacionRol(rol: any) {
+    // PRIMERO verificar permiso
     if (!this.permisoModuloService.puede('roles', 'eliminar')) {
       this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar roles');
+      return;  // No se abre el modal
+    }
+    // Si tiene permiso, recién abrimos el modal
+    this.rolAEliminar = rol;
+    this.mostrarModal = true;
+  }
+
+  cancelarEliminacion() {
+    this.mostrarModal = false;
+    this.rolAEliminar = null;
+  }
+
+
+
+  eliminarRol() {
+    if (!this.rolAEliminar) return;
+
+    if (!this.permisoModuloService.puede('roles', 'eliminar')) {
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar roles');
+      this.cancelarEliminacion();
       return;
     }
 
-
-    if (!confirm(`¿Seguro que quieres eliminar el rol "${rol.nombre}"?`)) {
-      return;
-    }
-
-    this.rolPermisosService.eliminarRol(rol.id).subscribe({
+    this.rolPermisosService.eliminarRol(this.rolAEliminar.id).subscribe({
       next: (mensaje: string) => {
         if (mensaje.includes('correctamente')) {
           this.notificacionSnackbarService.success('Rol eliminado', mensaje);
@@ -271,11 +290,13 @@ export class PermisosRolComponent implements OnInit {
           this.notificacionSnackbarService.error('No se pudo eliminar', mensaje);
         }
         this.cargarRoles();
+        this.cancelarEliminacion();
       },
       error: (err) => {
         let msg = err.error?.mensaje || 'Error al eliminar rol';
         this.notificacionSnackbarService.error('Error', msg);
         console.error(err);
+        this.cancelarEliminacion();
       }
     });
   }

@@ -39,7 +39,7 @@
                         <mat-icon>edit</mat-icon>
                     </a>
 
-                    <a class="eliminar" (click)="eliminarUsuario(usuario)" *ngIf="permisoModuloService.puede('usuarios', 'eliminar')">
+                    <a class="eliminar" (click)="confirmarEliminacionUsuario(usuario)" *ngIf="permisoModuloService.puede('usuarios', 'eliminar')">
                         <mat-icon>delete</mat-icon>
                     </a>
                 </div>
@@ -213,4 +213,20 @@
     </div>
 
 
+</div>
+
+
+
+
+<!-- Modal de Confirmación -->
+<div class="mostrar-modal" *ngIf="mostrarModal">
+    <div class="modal">
+        <h2>El usuario <strong>{{ usuarioAEliminar?.usuario }}</strong> será eliminado permanentemente.</h2>
+        <hr>
+        <h2>¿Estás seguro?</h2>
+        <div class="modal-botones">
+            <button class="cancel-button" (click)="cancelarEliminacion()">Cancelar</button>
+            <button class="confirm-button" (click)="eliminarUsuario()">Eliminar</button>
+        </div>
+    </div>
 </div>

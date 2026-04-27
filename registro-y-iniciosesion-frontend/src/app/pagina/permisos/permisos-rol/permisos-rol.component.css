@@ -354,3 +354,70 @@
     font-size: 22px;
     color: #dc2626;
 }
+
+
+/* Estilos generales del modal */
+.mostrar-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.425);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.mostrar-modal .modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    width: 300px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.418);
+    text-align: center;
+}
+
+.mostrar-modal .modal h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #595959;
+}
+
+.mostrar-modal .modal h2 strong {
+    font-size: 20px;
+    color: #c23232d5;
+}
+
+.mostrar-modal .modal hr{
+    margin: 15px 0;
+}
+
+.mostrar-modal .modal-botones {
+    display: flex;
+    justify-content: space-between;
+}
+
+.mostrar-modal .cancel-button,
+.mostrar-modal .confirm-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.mostrar-modal .cancel-button:hover,
+.mostrar-modal .confirm-button:hover {
+    opacity: 0.9;
+}
+
+.mostrar-modal .cancel-button {
+    background: #393e7f;
+}
+
+.mostrar-modal .confirm-button {
+    background: #c23232d5;
+}

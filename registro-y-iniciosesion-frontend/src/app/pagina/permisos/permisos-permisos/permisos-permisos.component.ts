@@ -52,6 +52,8 @@ export class PermisosPermisosComponent implements OnInit {
   accionSeleccionada: string = '';
   mensajeError: string = '';
   errorNuevaAccion: string = '';
+  mostrarModal: boolean = false;
+  permisoAEliminar: any = null;
 
   // ============================================
   // VARIABLES PARA AUTOCOMPLETADO
@@ -394,33 +396,49 @@ export class PermisosPermisosComponent implements OnInit {
   // MÉTODOS PARA ELIMINAR PERMISO
   // ============================================
 
+  confirmarEliminacionPermiso(permiso: any) {
+    if (!this.permisoModuloService.puede('permisos', 'eliminar')) {
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar permisos');
+      return;
+    }
+    this.permisoAEliminar = permiso;
+    this.mostrarModal = true;
+  }
+
+  cancelarEliminacion() {
+    this.mostrarModal = false;
+    this.permisoAEliminar = null;
+  }
 
   /** Elimina un permiso del sistema */
-  eliminarPermiso(permiso: any) {
-  if (!this.permisoModuloService.puede('permisos', 'eliminar')) {
-    this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar permisos');
-    return;
-  }
-  if (!confirm(`¿Seguro que quieres eliminar el permiso "${permiso.modulo} - ${permiso.accion}"?`)) return;
+  eliminarPermiso() {
+    if (!this.permisoAEliminar) return;
 
-  this.permisosPermisosService.eliminarPermiso(permiso.id).subscribe({
-    next: (mensaje: string) => {
-      // Verificar si el mensaje indica error (porque el backend retorna 200 pero con mensaje de bloqueo)
-      if (mensaje && mensaje.includes('No se puede eliminar')) {
-        this.notificacionSnackbarService.error('No se puede eliminar', mensaje);
-      } else {
-        this.notificacionSnackbarService.success('Permiso eliminado', mensaje || 'Eliminado correctamente');
-      }
-      this.cargarListaPermisos();
-      this.cargarModulos();
-    },
-    error: (err) => {
-      const msg = err.error?.mensaje || 'No se pudo eliminar el permiso';
-      this.notificacionSnackbarService.error('Error', msg);
-      console.error(err);
+    if (!this.permisoModuloService.puede('permisos', 'eliminar')) {
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar permisos');
+      this.cancelarEliminacion();
+      return;
     }
-  });
-}
+
+    this.permisosPermisosService.eliminarPermiso(this.permisoAEliminar.id).subscribe({
+      next: (mensaje: string) => {
+        if (mensaje && mensaje.includes('No se puede eliminar')) {
+          this.notificacionSnackbarService.error('No se puede eliminar', mensaje);
+        } else {
+          this.notificacionSnackbarService.success('Permiso eliminado', mensaje || 'Eliminado correctamente');
+        }
+        this.cargarListaPermisos();
+        this.cargarModulos();
+        this.cancelarEliminacion();
+      },
+      error: (err) => {
+        const msg = err.error?.mensaje || 'No se pudo eliminar el permiso';
+        this.notificacionSnackbarService.error('Error', msg);
+        console.error(err);
+        this.cancelarEliminacion();
+      }
+    });
+  }
 
 
 

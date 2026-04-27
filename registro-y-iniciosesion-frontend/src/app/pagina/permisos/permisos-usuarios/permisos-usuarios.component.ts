@@ -36,6 +36,9 @@ export class PermisosUsuariosComponent {
   usuarioOriginal: string = '';         /** Usuario original antes de editar */
   nuevaClave: string = '';              /** Nueva contraseña */
   confirmarClave: string = '';          /** Confirmación de contraseña */
+  mostrarModal: boolean = false;
+  usuarioAEliminar: any = null;
+
 
   constructor(
     private dialog: MatDialogRef<PermisosUsuariosComponent>,
@@ -306,25 +309,36 @@ export class PermisosUsuariosComponent {
   /**********************************************
    **** Elimina un usuario del sistema **********
    **********************************************/
-  eliminarUsuario(usuario: any) {
+
+  confirmarEliminacionUsuario(usuario: any) {
     if (!this.permisoModuloService.puede('usuarios', 'eliminar')) {
       this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar usuarios');
       return;
     }
-
-    const confirmacion = confirm(`¿Seguro que deseas eliminar al usuario ${usuario.usuario}?`);
-    if (!confirmacion) return;
-
-    this.usuariosPermisosService.eliminarUsuarioAdmin(usuario.usuario).subscribe({
-      next: (res: any) => {
-        this.notificacionSnackbarService.success('Usuario eliminado', res.mensaje || 'Eliminado correctamente');
-        this.cargarUsuarios();
-      },
-      error: (err) => {
-        this.notificacionSnackbarService.error('Error al eliminar', err.error?.mensaje || 'No se pudo eliminar');
-        console.error(err);
-      }
-    });
+    this.usuarioAEliminar = usuario;
+    this.mostrarModal = true;
   }
 
+  cancelarEliminacion() {
+    this.mostrarModal = false;
+  }
+
+
+
+  eliminarUsuario() {
+    if (!this.usuarioAEliminar) return;
+
+  this.usuariosPermisosService.eliminarUsuarioAdmin(this.usuarioAEliminar.usuario).subscribe({
+    next: (res: any) => {
+      this.notificacionSnackbarService.success('Usuario eliminado', res.mensaje || 'Eliminado correctamente');
+      this.cargarUsuarios();
+      this.cancelarEliminacion();
+    },
+    error: (err) => {
+      this.notificacionSnackbarService.error('Error al eliminar', err.error?.mensaje || 'No se pudo eliminar');
+      console.error(err);
+      this.cancelarEliminacion();
+    }
+  });
+  }
 }

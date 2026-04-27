@@ -46,7 +46,7 @@
                         <mat-icon>edit</mat-icon>
                     </a>
 
-                    <a class="eliminar" (click)="eliminarPermiso(permiso)"
+                    <a class="eliminar" (click)="confirmarEliminacionPermiso(permiso)"
                         *ngIf="permisoModuloService.puede('permisos', 'eliminar')">
                         <mat-icon>delete</mat-icon>
                     </a>
@@ -283,4 +283,19 @@
     </div>
 
 
+</div>
+
+
+
+<!-- Modal de Confirmación -->
+<div class="mostrar-modal" *ngIf="mostrarModal">
+    <div class="modal">
+        <h2><strong>{{ permisoAEliminar?.modulo | titlecase }} - {{ permisoAEliminar?.accion | titlecase }}</strong> será eliminado permanentemente.</h2>
+        <hr>
+        <h2>¿Estás seguro?</h2>
+        <div class="modal-botones">
+            <button class="cancel-button" (click)="cancelarEliminacion()">Cancelar</button>
+            <button class="confirm-button" (click)="eliminarPermiso()">Eliminar</button>
+        </div>
+    </div>
 </div>

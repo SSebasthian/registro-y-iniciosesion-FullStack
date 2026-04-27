@@ -33,6 +33,7 @@ export class PerfilComponent {
   moduloSeleccionado: string = '';
   accionesFiltradas: any[] = [];
   modulosUnicos: string[] = [];
+  mostrarModal: boolean = false;
 
 
   private subscriptions = new Subscription(); // Para manejar suscripciones
@@ -102,10 +103,17 @@ export class PerfilComponent {
     this.subscriptions.unsubscribe();
   }
 
+  confirmarCierreSesion(): void {
+    this.mostrarModal = true;
+  }
+
+  cancelarCierreSesion(): void {
+    this.mostrarModal = false;
+  }
 
   cerrarSesion() {
-    const confirmacion = confirm('¿Seguro que quieres cerrar sesión?');
-    if (!confirmacion) return;
+    // Oculta el modal si estaba abierto
+    this.mostrarModal = false;
     // Llamamos al método del servicio para cerrar sesión
     this.autenticadorService.cerrarSesion();
     // Mostrar notificación de éxito
@@ -269,7 +277,6 @@ export class PerfilComponent {
 
     return aMin - bMin;
   };
-
 
 }
 

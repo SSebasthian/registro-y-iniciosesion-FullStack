@@ -232,19 +232,20 @@
 }
 
 .editar-usuario .toggle-activo {
-  grid-column: span 2; /* ocupa toda la fila */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 5px;
-  border: 1px solid #c4b9b9;
-  border-radius: 8px;
-  background: #f7f8fc;
+    grid-column: span 2;
+    /* ocupa toda la fila */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
+    border: 1px solid #c4b9b9;
+    border-radius: 8px;
+    background: #f7f8fc;
 }
 
 .editar-usuario .toggle-activo span {
-  font-weight: 500;
-  color: #595959;
+    font-weight: 500;
+    color: #595959;
 }
 
 
@@ -261,7 +262,7 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding:  0 0 20px  0;
+    padding: 0 0 20px 0;
     flex-wrap: wrap;
 }
 
@@ -291,7 +292,7 @@
 
 .buscador input {
     width: 100%;
-    height: 40px;  
+    height: 40px;
     padding: 0 12px 0 35px;
     border: 1px solid #a8a9c0;
     border-radius: 10px;
@@ -304,7 +305,7 @@
     border-color: #393e7f;
     background: #fff;
     box-shadow: 0 0 0 2px rgba(57, 62, 127, 0.1);
-} 
+}
 
 /* icono */
 .buscador .icono {
@@ -312,11 +313,11 @@
     left: 5px;
     top: 50%;
     transform: translateY(-50%);
-    pointer-events: none; 
+    pointer-events: none;
     color: #393e7f;
-} 
+}
 
-.buscador .icono mat-icon{
+.buscador .icono mat-icon {
     width: 30px;
     height: 30px;
     font-size: 30px;
@@ -325,3 +326,68 @@
 
 
 
+/* Estilos generales del modal */
+.mostrar-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.425);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.mostrar-modal .modal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    width: 300px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.418);
+    text-align: center;
+}
+
+.mostrar-modal .modal h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #595959;
+}
+
+.mostrar-modal .modal h2 strong {
+    font-size: 20px;
+    color: #c23232d5;
+}
+
+.mostrar-modal .modal hr{
+    margin: 15px 0;
+}
+
+.mostrar-modal .modal-botones {
+    display: flex;
+    justify-content: space-between;
+}
+
+.mostrar-modal .cancel-button,
+.mostrar-modal .confirm-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.mostrar-modal .cancel-button:hover,
+.mostrar-modal .confirm-button:hover {
+    opacity: 0.9;
+}
+
+.mostrar-modal .cancel-button {
+    background: #393e7f;
+}
+
+.mostrar-modal .confirm-button {
+    background: #c23232d5;
+}
