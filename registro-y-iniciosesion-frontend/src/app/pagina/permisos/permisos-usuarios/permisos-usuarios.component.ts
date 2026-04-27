@@ -6,12 +6,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
 import { RolPermisosService } from './../../../arquitectura/servicio/permisos/rol-permisos.service';
 import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
 import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
 
 
 
@@ -42,7 +42,8 @@ export class PermisosUsuariosComponent {
     private usuariosPermisosService: UsuariosPermisosService,
     private rolPermisosService: RolPermisosService,
     private perfilService: PerfilService,
-    public permisoModuloService: PermisoModuloService
+    public permisoModuloService: PermisoModuloService,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) { }
 
   ngOnInit() {
@@ -58,12 +59,11 @@ export class PermisosUsuariosComponent {
       next: (data) => {
         this.usuarios = data;
         console.log('Se Listaron los Usuarios');
-        //console.log(this.usuarios);
       },
       error: (err) => {
-        console.error('Error al cargar usuarios admin', err);
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los usuarios');
+        console.error(err);
       }
-
     });
   }
 
@@ -114,9 +114,9 @@ export class PermisosUsuariosComponent {
    **********************************************/
   guardarUsuario() {
 
-     // Verificar permiso para editar
+    // Verificar permiso para editar
     if (!this.permisoModuloService.puede('usuarios', 'editar')) {
-      alert('No tienes permiso para editar usuarios');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes editar usuarios');
       return;
     }
 
@@ -130,7 +130,7 @@ export class PermisosUsuariosComponent {
 
           const usuarioActualizado = {
             ...usuarioActual,
-            usuario: this.usuarioSeleccionado.usuario, // 👈 nuevo username
+            usuario: this.usuarioSeleccionado.usuario,
             nombre: this.usuarioSeleccionado.nombre,
             rol: this.usuarioSeleccionado.rol.nombre
           };
@@ -146,9 +146,20 @@ export class PermisosUsuariosComponent {
         this.cargarUsuarios();
 
         this.editando = false;
-        console.log('Usuario actualizado correctamente');
+        //console.log('Usuario actualizado correctamente');
+        this.notificacionSnackbarService.success(
+          'Usuario actualizado',
+          `Los datos de ${this.usuarioSeleccionado.usuario} se guardaron correctamente`
+        );
+
+
+
       },
       error: (err) => {
+        this.notificacionSnackbarService.error(
+          'Error al actualizar',
+          err.error?.mensaje || 'No se pudo modificar el usuario'
+        );
         console.error('Error', err);
       }
     });
@@ -170,24 +181,27 @@ export class PermisosUsuariosComponent {
    **** Guarda nueva contraseña del usuario *****
    **********************************************/
   guardarPassword() {
-    // VALIDACIÓN
-    if (this.nuevaClave !== this.confirmarClave) {
-      console.error('Las contraseñas no coinciden');
+    if (!this.permisoModuloService.puede('usuarios', 'editar')) {
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes cambiar contraseñas');
       return;
     }
 
-    this.usuariosPermisosService
-      .cambiarClaveAdmin(this.usuarioSeleccionado.usuario, this.nuevaClave)
+    if (this.nuevaClave !== this.confirmarClave) {
+      this.notificacionSnackbarService.error('Contraseñas no coinciden', 'Verifica la nueva contraseña');
+      return;
+    }
+
+    this.usuariosPermisosService.cambiarClaveAdmin(this.usuarioSeleccionado.usuario, this.nuevaClave)
       .subscribe({
         next: (res: any) => {
-          console.log(res.mensaje);
-
+          this.notificacionSnackbarService.success('Contraseña cambiada', res.mensaje || 'Actualizada correctamente');
           this.modoPassword = false;
           this.nuevaClave = '';
           this.confirmarClave = '';
         },
         error: (err) => {
-          console.error('Error cambiando clave', err);
+          this.notificacionSnackbarService.error('Error', err.error?.mensaje || 'No se pudo cambiar la contraseña');
+          console.error(err);
         }
       });
   }
@@ -218,7 +232,7 @@ export class PermisosUsuariosComponent {
     clave: '',
     rol: ''
   };
-  
+
   /**********************************************
    ** Activa formulario de creación de usuario **
    **********************************************/
@@ -245,14 +259,16 @@ export class PermisosUsuariosComponent {
    ** Guarda un nuevo usuario en el sistema *****
    **********************************************/
   guardarNuevoUsuario() {
-    if (!this.nuevoUsuario.nombre ||
-      !this.nuevoUsuario.usuario ||
-      !this.nuevoUsuario.clave ||
-      !this.nuevoUsuario.rol) {
-
-      alert('Todos los campos son obligatorios');
+    if (!this.permisoModuloService.puede('usuarios', 'crear')) {
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes crear usuarios');
       return;
     }
+
+    if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.usuario || !this.nuevoUsuario.clave || !this.nuevoUsuario.rol) {
+      this.notificacionSnackbarService.error('Campos incompletos', 'Todos los campos son obligatorios');
+      return;
+    }
+
     const data = {
       usuario: this.nuevoUsuario.usuario,
       clave: this.nuevoUsuario.clave,
@@ -262,19 +278,13 @@ export class PermisosUsuariosComponent {
 
     this.usuariosPermisosService.registrarAdmin(data).subscribe({
       next: (res) => {
-        console.log(res.mensaje);
-        alert(res.mensaje);
-
-        // recargar lista
+        this.notificacionSnackbarService.success('Usuario creado', res.mensaje || 'Registro exitoso');
         this.cargarUsuarios();
-
-        // volver a lista
         this.modoCrearUsuario = false;
-
-
       },
       error: (err) => {
-        console.error('Error creando usuario', err);
+        this.notificacionSnackbarService.error('Error al crear', err.error?.mensaje || 'No se pudo registrar el usuario');
+        console.error(err);
       }
     });
   }
@@ -297,28 +307,22 @@ export class PermisosUsuariosComponent {
    **** Elimina un usuario del sistema **********
    **********************************************/
   eliminarUsuario(usuario: any) {
-
-     // Verificar permiso para eliminar
     if (!this.permisoModuloService.puede('usuarios', 'eliminar')) {
-      alert('No tienes permiso para eliminar usuarios');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar usuarios');
       return;
     }
 
     const confirmacion = confirm(`¿Seguro que deseas eliminar al usuario ${usuario.usuario}?`);
-
     if (!confirmacion) return;
 
     this.usuariosPermisosService.eliminarUsuarioAdmin(usuario.usuario).subscribe({
       next: (res: any) => {
-
-        console.log(res.mensaje || 'Usuario eliminado correctamente');
-
-        // refrescar lista
+        this.notificacionSnackbarService.success('Usuario eliminado', res.mensaje || 'Eliminado correctamente');
         this.cargarUsuarios();
-
       },
       error: (err) => {
-        console.error('Error eliminando usuario', err);
+        this.notificacionSnackbarService.error('Error al eliminar', err.error?.mensaje || 'No se pudo eliminar');
+        console.error(err);
       }
     });
   }

@@ -5,6 +5,7 @@ import { PerfilComponent } from './pagina/autenticacion/perfil/perfil.component'
 import { estadoPrivado, estadoPublico } from './arquitectura/guardianRuta/enturamiento.guard';
 
 
+
 export const routes: Routes = [
     {
         path: '',

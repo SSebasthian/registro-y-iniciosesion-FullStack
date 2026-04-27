@@ -32,10 +32,7 @@ public class RolController {
     // Editar Rol
     @PutMapping("/admin/{id}")
     public Rol editarRol(@PathVariable Long id, @RequestBody Rol datos) {
-        Rol rol = rolService.buscarPorId(id);
-        if (rol == null) return null;
-        rol.setNombre(datos.getNombre());
-        return rolService.crear(rol);
+        return rolService.actualizarRol(id, datos);
     }
 
     //Eliminar Rol
@@ -56,6 +53,12 @@ public class RolController {
         return rolService.buscarPorId(id);
     }
 
+
+    @GetMapping("/admin/existe")
+    public Map<String, Boolean> verificarRol(@RequestParam String nombre) {
+        boolean existe = rolService.existeRol(nombre);
+        return Map.of("existe", existe);
+    }
 
     ////////////////////////////////////////
     //////////// PERMISO x ROL /////////////

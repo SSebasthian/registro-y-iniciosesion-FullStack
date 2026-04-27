@@ -11,6 +11,9 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { PermisosPermisosService } from '../../../arquitectura/servicio/permisos/permisos-permisos.service';
 import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
+
+
 
 @Component({
   selector: 'app-permisos-permisos',
@@ -83,7 +86,8 @@ export class PermisosPermisosComponent implements OnInit {
   constructor(
     private dialog: MatDialogRef<PermisosPermisosComponent>,
     private permisosPermisosService: PermisosPermisosService,
-    public permisoModuloService: PermisoModuloService
+    public permisoModuloService: PermisoModuloService,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) { }
 
 
@@ -150,7 +154,10 @@ export class PermisosPermisosComponent implements OnInit {
         this.permisos = data.sort((a, b) => a.id - b.id);
         console.log('Se Listan los Permisos:');
       },
-      error: (err) => console.error('Error al cargar permisos:', err)
+      error: (err) => {
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los permisos');
+        console.error(err);
+      }
     });
   }
 
@@ -160,7 +167,10 @@ export class PermisosPermisosComponent implements OnInit {
       next: (data) => {
         this.modulosDisponibles = data;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los módulos');
+        console.error(err);
+      }
     });
   }
 
@@ -190,17 +200,15 @@ export class PermisosPermisosComponent implements OnInit {
   /** Verifica si el permiso existe antes de crearlo */
   verificarYCrearPermiso() {
     if (!this.nuevoPermiso.modulo || !this.nuevoPermiso.accion) {
-      this.mensajeError = 'Complete módulo y acción';
+      this.notificacionSnackbarService.error('Campos incompletos', 'Complete módulo y acción');
       return;
     }
 
-    this.permisosPermisosService.verificarPermiso(
-      this.nuevoPermiso.modulo,
-      this.nuevoPermiso.accion
-    ).subscribe({
+    this.permisosPermisosService.verificarPermiso(this.nuevoPermiso.modulo, this.nuevoPermiso.accion).subscribe({
       next: (resp) => {
         if (resp.existe) {
           this.mensajeError = `El Permiso "${this.nuevoPermiso.modulo} - ${this.nuevoPermiso.accion}" Ya Existe`;
+          this.notificacionSnackbarService.error('Permiso duplicado', this.mensajeError);
         } else {
           this.crearNuevoPermiso();
         }
@@ -215,7 +223,7 @@ export class PermisosPermisosComponent implements OnInit {
 
     // Verificar permiso para editar
     if (!this.permisoModuloService.puede('permisos', 'crear')) {
-      alert('No tienes permiso para editar permisos');
+      this.notificacionSnackbarService.error('Sin permiso', 'No tienes permiso para crear permisos');
       return;
     }
 
@@ -249,23 +257,17 @@ export class PermisosPermisosComponent implements OnInit {
       next: (resp) => {
         if (resp.creado) {
           this.modoCrearPermiso = false;
-          this.nuevoPermiso = {
-            modulo: '',
-            accion: '',
-            moduloNuevo: '',
-            accionNueva: ''
-          };
+          this.nuevoPermiso = { modulo: '', accion: '', moduloNuevo: '', accionNueva: '' };
           this.cargarListaPermisos();
           this.cargarModulos();
-
-          alert(resp.mensaje);
+          this.notificacionSnackbarService.success('Permiso creado', resp.mensaje || 'Creado correctamente');
         } else {
-          alert(resp.mensaje);
+          this.notificacionSnackbarService.error('Error', resp.mensaje || 'No se pudo crear');
         }
       },
       error: (err) => {
+        this.notificacionSnackbarService.error('Error del servidor', 'No se pudo crear el permiso');
         console.error(err);
-        alert('Error al crear permiso');
       }
     });
   }
@@ -283,7 +285,7 @@ export class PermisosPermisosComponent implements OnInit {
 
     // Verificar permiso para editar
     if (!this.permisoModuloService.puede('permisos', 'editar')) {
-      alert('No tienes permiso para editar permisos');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes editar permisos');
       return;
     }
 
@@ -329,7 +331,7 @@ export class PermisosPermisosComponent implements OnInit {
     }
 
     if (!moduloFinal || !accionFinal) {
-      this.mensajeError = 'Complete Modulo y Accion';
+      this.notificacionSnackbarService.error('Campos incompletos', 'Complete Módulo y Acción');
       return;
     }
 
@@ -342,6 +344,7 @@ export class PermisosPermisosComponent implements OnInit {
           if (resp.existe) {
             // Error fijo - NO se elimina automáticamente
             this.mensajeError = `El Permiso "${moduloFinal} - ${accionFinal}" Ya Existe`;
+            this.notificacionSnackbarService.error('Permiso duplicado', this.mensajeError);
             // No hay setTimeout, el error se queda hasta que el usuario cambie algo
           } else {
             this.actualizarPermiso(moduloFinal, accionFinal);
@@ -376,12 +379,12 @@ export class PermisosPermisosComponent implements OnInit {
         this.cargarListaPermisos();
         this.cargarModulos();
         this.permisoSeleccionado = null;
-        
-        alert('Permiso actualizado correctamente');
-
-        
+        this.notificacionSnackbarService.success('Permiso actualizado', 'Los cambios se guardaron correctamente');
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        this.notificacionSnackbarService.error('Error', err.error?.mensaje || 'No se pudo actualizar');
+        console.error(err)
+      }
     });
   }
 
@@ -394,29 +397,30 @@ export class PermisosPermisosComponent implements OnInit {
 
   /** Elimina un permiso del sistema */
   eliminarPermiso(permiso: any) {
-    // Verificar permiso para eliminar
-    if (!this.permisoModuloService.puede('permisos', 'eliminar')) {
-      alert('No tienes permiso para eliminar permisos');
-      return;
-    }
-
-    if (!confirm(`¿Seguro que quieres eliminar el permiso "${permiso.modulo} - ${permiso.accion}"?`)) {
-      return;
-    }
-
-    this.permisosPermisosService.eliminarPermiso(permiso.id).subscribe({
-      next: (mensaje: String) => {
-        alert(mensaje);
-        console.log(mensaje);
-        this.cargarListaPermisos(); // refresca la lista
-        this.cargarModulos();
-      },
-      error: (err) => {
-        console.log("ERROR COMPLETO:", err);
-        alert("Error eliminando permiso");
-      }
-    });
+  if (!this.permisoModuloService.puede('permisos', 'eliminar')) {
+    this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar permisos');
+    return;
   }
+  if (!confirm(`¿Seguro que quieres eliminar el permiso "${permiso.modulo} - ${permiso.accion}"?`)) return;
+
+  this.permisosPermisosService.eliminarPermiso(permiso.id).subscribe({
+    next: (mensaje: string) => {
+      // Verificar si el mensaje indica error (porque el backend retorna 200 pero con mensaje de bloqueo)
+      if (mensaje && mensaje.includes('No se puede eliminar')) {
+        this.notificacionSnackbarService.error('No se puede eliminar', mensaje);
+      } else {
+        this.notificacionSnackbarService.success('Permiso eliminado', mensaje || 'Eliminado correctamente');
+      }
+      this.cargarListaPermisos();
+      this.cargarModulos();
+    },
+    error: (err) => {
+      const msg = err.error?.mensaje || 'No se pudo eliminar el permiso';
+      this.notificacionSnackbarService.error('Error', msg);
+      console.error(err);
+    }
+  });
+}
 
 
 
@@ -432,10 +436,11 @@ export class PermisosPermisosComponent implements OnInit {
     this.modoCrearPermiso = false;
 
     this.permisosPermisosService.obtenerRolesPorPermiso(permiso.id).subscribe({
-      next: (data) => {
-        this.rolesPorPermiso = data;
-      },
-      error: (err) => console.error(err)
+      next: (data) => { this.rolesPorPermiso = data; },
+      error: (err) => {
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los roles');
+        console.error(err);
+      }
     });
   }
 
@@ -637,41 +642,36 @@ export class PermisosPermisosComponent implements OnInit {
     this.buscarModuloEditarActivo = texto.length > 0;
 
     if (texto.length > 0) {
-        this.modulosFiltradosEditar = this.modulosDisponibles
-            .filter(modulo => modulo.toLowerCase().includes(texto))
-            .slice(0, 10);
+      this.modulosFiltradosEditar = this.modulosDisponibles
+        .filter(modulo => modulo.toLowerCase().includes(texto))
+        .slice(0, 10);
     } else {
-        this.modulosFiltradosEditar = [];
+      this.modulosFiltradosEditar = [];
     }
-}
+  }
 
-/** Filtra acciones existentes mientras escribe en edición */
-filtrarAccionesEditar() {
+  /** Filtra acciones existentes mientras escribe en edición */
+  filtrarAccionesEditar() {
     const texto = this.permisoSeleccionado?.accion?.toLowerCase() || '';
     this.buscarAccionEditarActivo = texto.length > 0;
 
     if (texto.length > 0) {
-        // Obtener acciones existentes de todos los módulos o del módulo actual
-        const accionesExistentes = [...new Set(this.permisos.map(p => p.accion))];
-        this.accionesFiltradasEditar = accionesExistentes
-            .filter(accion => accion.toLowerCase().includes(texto))
-            .slice(0, 10);
+      // Obtener acciones existentes de todos los módulos o del módulo actual
+      const accionesExistentes = [...new Set(this.permisos.map(p => p.accion))];
+      this.accionesFiltradasEditar = accionesExistentes
+        .filter(accion => accion.toLowerCase().includes(texto))
+        .slice(0, 10);
     } else {
-        this.accionesFiltradasEditar = [];
+      this.accionesFiltradasEditar = [];
     }
-}
+  }
 
-/** Verifica si una acción ya existe (excluyendo el permiso actual) */
-existeAccionEnEdicion(accion: string): boolean {
-    return this.permisos.some(p => 
-        p.id !== this.permisoSeleccionado?.id && 
-        p.accion === accion
+  /** Verifica si una acción ya existe (excluyendo el permiso actual) */
+  existeAccionEnEdicion(accion: string): boolean {
+    return this.permisos.some(p =>
+      p.id !== this.permisoSeleccionado?.id &&
+      p.accion === accion
     );
-}
-
-
-
-
-
+  }
 
 }

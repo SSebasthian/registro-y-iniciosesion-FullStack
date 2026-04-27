@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { RouterLink, RouterModule } from "@angular/router";
 import { inicioSesionSolicitud } from './../../../arquitectura/interface/inicioSesionSolicitud.interface';
 import { inicioSesionRespuesta } from './../../../arquitectura/interface/inicioSesionRespuesta.interface';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
 
 
 
@@ -20,12 +21,12 @@ export class AccesoComponent {
 
   usuario: string = '';  // almacena el usuario del formulario
   clave: string = '';    // almacena la clave del formulario
-  mensaje: string = '';  // mensaje para mostrar en pantalla (exitoso o error)
   mostrarClave: boolean = false; // variable para controlar la visibilidad de la contraseña
 
   constructor(
     private autenticadorService: AutenticadorService,
-    private router: Router
+    private router: Router,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) { }
 
 
@@ -34,6 +35,26 @@ export class AccesoComponent {
   // ---------------------------------------------------------
 
   iniciarSesion() {
+
+    // --- Validación de campos obligatorios ---
+    if (!this.usuario || this.usuario.trim() === '') {
+      this.notificacionSnackbarService.error(
+        'El usuario es obligatorio',
+        'El nombre de usuario no puede estar vacío'
+      );
+      return;
+    }
+
+    // --- Validación de campos obligatorios ---
+    if (!this.clave || this.clave.trim() === '') {
+      this.notificacionSnackbarService.error(
+        'La contraseña es obligatoria',
+        'La contraseña no puede estar vacía'
+      );
+      return;
+    }
+
+
     // Creamos un objeto con los datos que necesita el backend
     const datos: inicioSesionSolicitud = {
       usuario: this.usuario,
@@ -47,25 +68,36 @@ export class AccesoComponent {
     // Si el backend responde correctamente (200 OK)
     next: (respuesta: inicioSesionRespuesta) => {
 
-      // Guardamos el mensaje en la variable 'mensaje' para mostrarlo en pantalla
-      this.mensaje = respuesta.mensaje;
+      // Verificar si el login fue exitoso por el mensaje del backend
+        if (respuesta.mensaje === 'Inicio de Sesion Exitoso!!!') {
+          // Notificación de éxito
+          this.notificacionSnackbarService.success(
+            'Bienvenido',
+            respuesta.mensaje
+          );
 
-      // Si el mensaje del backend indica login exitoso
-      if (respuesta.mensaje === 'Inicio de Sesion Exitoso!!!'){
+          // Guardar datos en localStorage
+          localStorage.setItem('usuario', JSON.stringify(respuesta));
 
-        // Guardamos en localStorage los datos recibidos del backend
-        // (por ejemplo token, id de usuario, nombre, etc.)
-       localStorage.setItem('usuario', JSON.stringify(respuesta));
-
-        // Luego podrías redirigir a otra página, como un dashboard
-        //console.log('Redirigiendo a Perfil...');
-        this.router.navigate(['/autenticacion/perfil']);
-      }
-    },
-
-    // Si ocurre un error en el servidor o no responde correctamente
-    error: () => {
-        this.mensaje = 'Error en el servidor';
+          // Redirigir al perfil después de 1 segundo (opcional)
+          setTimeout(() => {
+            this.router.navigate(['/autenticacion/perfil']);
+          }, 1000);
+        } else {
+          // Cualquier otro mensaje (ej: "Usuario o contraseña incorrectos")
+          this.notificacionSnackbarService.error(
+            'Error de autenticación',
+            respuesta.mensaje
+          );
+        }
+      },
+      error: (err) => {
+        // Error de red o servidor (HTTP 500, etc.)
+        this.notificacionSnackbarService.error(
+          'Error del servidor',
+          'No se pudo iniciar sesión. Intenta más tarde.'
+        );
+        console.error(err);
       }
     });
   }
@@ -78,4 +110,6 @@ export class AccesoComponent {
   toggleMostrarClave() {
     this.mostrarClave = !this.mostrarClave;
   }
+
+  
 }

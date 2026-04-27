@@ -10,6 +10,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PermisosxrolPermisosService } from '../../../arquitectura/servicio/permisos/permisosxrol-permisos.service';
 import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
 
 
 
@@ -35,7 +36,8 @@ export class PermisosPermisosxrolComponent {
   constructor(
     private dialogRef: MatDialogRef<PermisosPermisosxrolComponent>,
     private permisosxrolPermisosService: PermisosxrolPermisosService,
-    public permisoModuloService: PermisoModuloService
+    public permisoModuloService: PermisoModuloService,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) {
     this.cargarRoles();
     this.cargarTodosLosPermisosConRoles();
@@ -53,6 +55,7 @@ export class PermisosPermisosxrolComponent {
         this.roles = data;
       },
       error: (err) => {
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los roles');
         console.error('Error al cargar roles:', err);
       }
     });
@@ -70,6 +73,7 @@ export class PermisosPermisosxrolComponent {
         this.hayCambios = false;
       },
       error: (err) => {
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los permisos del rol');
         console.error('Error al cargar permisos del rol:', err);
       }
     });
@@ -138,7 +142,7 @@ export class PermisosPermisosxrolComponent {
   }
 
   cargarTodosLosPermisosConRoles() {
-    console.log('Listar todos los permisos con roles');
+    //console.log('Listar todos los permisos con roles');
 
     // Primero obtener todos los permisos
     this.permisosxrolPermisosService.obtenerPermisos().subscribe({
@@ -191,6 +195,7 @@ export class PermisosPermisosxrolComponent {
         });
       },
       error: (err) => {
+        this.notificacionSnackbarService.error('Error', 'No se pudieron cargar los permisos');
         console.error('❌ Error al cargar permisos:', err);
       }
     });
@@ -216,11 +221,12 @@ export class PermisosPermisosxrolComponent {
   guardarCambios() {
     // Verificar permiso para crear
     if (!this.permisoModuloService.puede('permisos', 'asignar')) {
-      alert('No tienes permiso para asignar permisos a roles');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes asignar permisos a roles');
       return;
     }
 
     if (!this.hayCambios) {
+      this.notificacionSnackbarService.success('Sin cambios', 'No hay modificaciones para guardar');
       return;
     }
 
@@ -240,14 +246,16 @@ export class PermisosPermisosxrolComponent {
       next: (respuesta) => {
         this.guardarBackup();
         this.hayCambios = false;
-        alert('Permisos actualizados correctamente');
+        this.notificacionSnackbarService.success('Permisos actualizados', 'Los cambios se guardaron correctamente');
+
 
         this.rolSeleccionado = null;  // Limpiar el rol seleccionado
         this.cargarTodosLosPermisosConRoles();
       },
       error: (err) => {
-        console.error('Error al guardar permisos:', err);
-        alert('Error al guardar los cambios');
+        const msg = err.error?.mensaje || 'Error al guardar los cambios';
+        this.notificacionSnackbarService.error('Error', msg);
+        console.error(err);
       }
     });
   }
@@ -255,9 +263,6 @@ export class PermisosPermisosxrolComponent {
   accionCancelar() {
     this.dialogRef.close();
   }
-
-
-
 
 }
 

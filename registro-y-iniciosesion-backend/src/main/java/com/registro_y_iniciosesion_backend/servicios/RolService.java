@@ -57,7 +57,16 @@ public class RolService {
         return "Rol eliminado correctamente";
     }
 
+    public boolean existeRol(String nombre) {
+        return rolRepository.findByNombre(nombre).isPresent();
+    }
 
+    public Rol actualizarRol(Long id, Rol rolActualizado) {
+        Rol rolExistente = rolRepository.findById(id).orElse(null);
+        if (rolExistente == null) return null;
+        rolExistente.setNombre(rolActualizado.getNombre());
+        return rolRepository.save(rolExistente);
+    }
 
 
     /// ////////////////////////////////////////

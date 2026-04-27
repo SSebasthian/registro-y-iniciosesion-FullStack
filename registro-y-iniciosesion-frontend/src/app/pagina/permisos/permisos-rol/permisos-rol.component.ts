@@ -12,6 +12,7 @@ import { RolPermisosService } from './../../../arquitectura/servicio/permisos/ro
 import { UsuariosPermisosService } from './../../../arquitectura/servicio/permisos/usuarios-permisos.service';
 import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
 import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
 
 
 
@@ -48,8 +49,8 @@ export class PermisosRolComponent implements OnInit {
     private rolPermisosService: RolPermisosService,
     private usuariosPermisosService: UsuariosPermisosService,
     private perfilService: PerfilService,
-    public permisoModuloService: PermisoModuloService
-
+    public permisoModuloService: PermisoModuloService,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) { }
 
   ngOnInit() {
@@ -132,18 +133,18 @@ export class PermisosRolComponent implements OnInit {
     if (texto.length > 0) {
       // Excluir el rol actual de las sugerencias
       this.rolesFiltradosSugerenciaEditar = this.roles
-        .filter(rol => 
+        .filter(rol =>
           rol.id !== this.rolSeleccionado?.id && // No mostrar el rol actual
           rol.nombre.toLowerCase().includes(texto)
         )
         .slice(0, 10);
-      
+
       // Verificar si el nombre exacto ya existe (excluyendo el rol actual)
       const existeExactamente = this.roles.some(rol =>
         rol.id !== this.rolSeleccionado?.id &&
         rol.nombre.toLowerCase() === texto
       );
-      
+
       if (existeExactamente && texto.trim() !== '') {
         this.mensajeErrorEditar = `El rol "${texto}" ya existe`;
       } else {
@@ -170,7 +171,7 @@ export class PermisosRolComponent implements OnInit {
   editarRol(rol: any) {
     // Verificar permiso para editar
     if (!this.permisoModuloService.puede('roles', 'editar')) {
-      alert('No tienes permiso para editar roles');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes editar roles');
       return;
     }
 
@@ -183,57 +184,77 @@ export class PermisosRolComponent implements OnInit {
 
 
   guardarRol() {
-
-    // Verificar si hay error de duplicado
+    // Validación local (ya la tienes con mensajeErrorEditar)
     if (this.mensajeErrorEditar) {
-      alert(this.mensajeErrorEditar);
+      this.notificacionSnackbarService.error('Nombre duplicado', this.mensajeErrorEditar);
       return;
     }
 
-    
-    // Verificar permiso para editar
     if (!this.permisoModuloService.puede('roles', 'editar')) {
-      alert('No tienes permiso para editar roles');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes editar roles');
       return;
     }
 
+    const nombreNuevo = this.rolSeleccionado.nombre.trim();
+    const nombreOriginal = this.rolSeleccionado.nombreOriginal; // Guarda el original al editar
+
+    // Si el nombre no cambió, no validar
+    if (nombreNuevo === nombreOriginal) {
+      this.ejecutarActualizacion();
+      return;
+    }
+
+    // Verificar si ya existe otro rol con ese nombre
+    this.rolPermisosService.verificarRolExiste(nombreNuevo).subscribe({
+      next: (resp) => {
+        if (resp.existe) {
+          this.mensajeErrorEditar = `El rol "${nombreNuevo}" ya existe`;
+          this.notificacionSnackbarService.error('Nombre duplicado', this.mensajeErrorEditar);
+        } else {
+          this.ejecutarActualizacion();
+        }
+      },
+      error: () => {
+        // Si falla la verificación, asumimos que no existe e intentamos
+        this.ejecutarActualizacion();
+      }
+    });
+  }
+
+  private ejecutarActualizacion() {
     const rolId = this.rolSeleccionado.id;
     const esMiRol = this.usuarioActual?.rol?.id === rolId;
 
-    this.rolPermisosService.actualizarRol(
-      this.rolSeleccionado.id,
-      this.rolSeleccionado
-    ).subscribe({
+    this.rolPermisosService.actualizarRol(this.rolSeleccionado.id, this.rolSeleccionado).subscribe({
       next: (resp) => {
         this.editando = false;
-        this.cargarRoles(); // refrescar lista
+        this.cargarRoles();
+        this.notificacionSnackbarService.success('Rol actualizado',
+          `El rol "${this.rolSeleccionado.nombre}" se guardó correctamente`);
 
-
-        // SI ES MI ROL, NOTIFICAR PARA ACTUALIZAR PERFIL
         if (esMiRol) {
-          //console.log('Mi rol fue modificado, actualizando perfil...');
-
-          // También actualizar localStorage directamente
           const usuarioLS = JSON.parse(localStorage.getItem('usuario') || '{}');
           usuarioLS.rol = this.rolSeleccionado.nombre;
           localStorage.setItem('usuario', JSON.stringify(usuarioLS));
-
-
-          // Forzar actualización del perfil
           this.perfilService.notificarPerfilActualizado();
-
+          this.notificacionSnackbarService.success('Perfil actualizado',
+            'Tu información de rol ha sido actualizada');
         }
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        let msg = 'No se pudo actualizar el rol';
+        if (err.error && typeof err.error === 'string') msg = err.error;
+        else if (err.error?.mensaje) msg = err.error.mensaje;
+        this.notificacionSnackbarService.error('Error', msg);
+      }
     });
-    console.log('Rol actualizado:', this.rolSeleccionado.nombre);
   }
 
 
   eliminarRol(rol: any) {
     // Verificar permiso para eliminar
     if (!this.permisoModuloService.puede('roles', 'eliminar')) {
-      alert('No tienes permiso para eliminar roles');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes eliminar roles');
       return;
     }
 
@@ -243,14 +264,18 @@ export class PermisosRolComponent implements OnInit {
     }
 
     this.rolPermisosService.eliminarRol(rol.id).subscribe({
-      next: (mensaje: String) => {
-        alert(mensaje);
-        console.log(mensaje);
-        this.cargarRoles(); // refresca la lista
+      next: (mensaje: string) => {
+        if (mensaje.includes('correctamente')) {
+          this.notificacionSnackbarService.success('Rol eliminado', mensaje);
+        } else {
+          this.notificacionSnackbarService.error('No se pudo eliminar', mensaje);
+        }
+        this.cargarRoles();
       },
       error: (err) => {
-        console.log("ERROR COMPLETO:", err);
-        alert("Error eliminando rol");
+        let msg = err.error?.mensaje || 'Error al eliminar rol';
+        this.notificacionSnackbarService.error('Error', msg);
+        console.error(err);
       }
     });
   }
@@ -259,7 +284,7 @@ export class PermisosRolComponent implements OnInit {
   crearRol() {
     // Verificar permiso para crear
     if (!this.permisoModuloService.puede('roles', 'crear')) {
-      alert('No tienes permiso para crear roles');
+      this.notificacionSnackbarService.error('Sin permiso', 'No puedes crear roles');
       return;
     }
 
@@ -276,40 +301,36 @@ export class PermisosRolComponent implements OnInit {
   /** Verifica si el rol existe antes de crearlo */
   verificarYCrearRol() {
     const nombreRol = this.nuevoRol.nombre?.trim();
-
     if (!nombreRol) {
       this.mensajeError = 'El nombre del rol es obligatorio';
+      this.notificacionSnackbarService.error('Campo obligatorio', 'El nombre del rol es requerido');
       return;
     }
 
     // Verificar si ya existe un rol con el mismo nombre
-    const existe = this.roles.some(rol =>
-      rol.nombre.toLowerCase() === nombreRol.toLowerCase()
-    );
-
+    const existe = this.roles.some(rol => rol.nombre.toLowerCase() === nombreRol.toLowerCase());
     if (existe) {
       this.mensajeError = `El rol "${nombreRol}" ya existe. No se puede crear duplicados.`;
+      this.notificacionSnackbarService.error('Rol duplicado', this.mensajeError);
       return;
     }
-    // Si no existe, proceder a crear
     this.crearNuevoRol();
   }
 
 
   crearNuevoRol() {
     const nombreRol = this.nuevoRol.nombre.trim();
-
     this.rolPermisosService.crearRol({ nombre: nombreRol }).subscribe({
       next: (resp) => {
-        console.log('Rol creado:', resp);
-
+        this.notificacionSnackbarService.success('Rol creado', `"${nombreRol}" se agregó correctamente`);
         this.modoCrearRol = false;
         this.nuevoRol = { nombre: '' };
         this.mensajeError = '';
-
-        this.cargarRoles(); // refresca lista
+        this.cargarRoles();
       },
       error: (err) => {
+        let msg = err.error?.mensaje || 'No se pudo crear el rol';
+        this.notificacionSnackbarService.error('Error', msg);
         console.error(err);
       }
     });

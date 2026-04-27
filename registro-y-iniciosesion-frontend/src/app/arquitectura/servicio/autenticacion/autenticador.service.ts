@@ -59,6 +59,7 @@ export class AutenticadorService {
     // Elimina el usuario del localStorage para cerrar sesión
     localStorage.removeItem('usuario');
   }
+  
 
 
   // ----------------------------------

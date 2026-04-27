@@ -28,3 +28,5 @@
 `ng generate service arquitectura/servicio/autenticacion/perfil` (Servicio Autenticacion)<br>
 
 `ng generate service arquitectura/servicio/autenticacion/permiso-modulo` (Servicio PERMISOS X MODULO)<br>
+`ng generate component pagina/notificacion` (PERMISOS - PERMISOS POR ROL)<br>
+`ng generate service arquitectura/servicio/notificacion/notificacion-snackbar` (Servicio NOTIFICACIONES SNACKBAR)<br>

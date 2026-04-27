@@ -8,6 +8,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef } from '@angular/material/dialog';
 import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perfil.service';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
 
 
 
@@ -23,7 +24,8 @@ export class PermisosPerfilComponent {
 
   constructor(
     private perfilService: PerfilService,
-    private dialog: MatDialogRef<PermisosPerfilComponent>
+    private dialog: MatDialogRef<PermisosPerfilComponent>,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) { }
 
   editando: boolean = false;
@@ -58,75 +60,72 @@ export class PermisosPerfilComponent {
   }
 
   guardarPerfil() {
-    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
 
+  this.perfilService.actualizarPerfil(usuarioGuardado.usuario, this.usuario).subscribe({
+    next: (res: any) => {
+      // Notificación de éxito
+      this.notificacionSnackbarService.success(
+        'Perfil actualizado',
+        `Nombre cambiado a: ${res.nombre}`
+      );
+      
+      this.usuario = res;
+      this.editando = false;
+      this.perfilService.notificarPerfilActualizado();
+    },
+    error: (err) => {
+      this.notificacionSnackbarService.error(
+        'Error al actualizar',
+        'No se pudo modificar el nombre. Intenta de nuevo.'
+      );
+      console.error(err);
+    }
+  });
+}
 
-    this.perfilService.actualizarPerfil(
-      usuarioGuardado.usuario,
-      this.usuario
-    ).subscribe({
-
-      next: (res:any) => {
-        console.log('Perfil actualizado: Nombre', res.nombre);
-        //console.log('Perfil actualizado', res);
-        this.usuario = res; //refrescar datos
-        this.editando = false;
-        // AVISAR AL PERFIL DEL CAMBIO
-        this.perfilService.notificarPerfilActualizado();
-      },
-
-      error: (err) => {
-        console.error('Error', err);
-      }
-
-    });
-  }
 
   abrirPassword() {
     this.modoPassword = true;
   }
 
   guardarPassword() {
-    const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
-    // VALIDACIONES
-    if (!this.claveActual || !this.claveNueva || !this.claveConfirmar) {
-      this.mensajeclave = 'Todos los campos son obligatorios';
-      console.log(this.mensajeclave);
-      return;
-    }
+  const usuarioGuardado = JSON.parse(localStorage.getItem('usuario') || '{}');
 
-    if (this.claveNueva !== this.claveConfirmar) {
-      this.mensajeclave = 'Las contraseñas no coinciden';
-      console.log(this.mensajeclave);
-      return;
-    }
-    this.perfilService.cambiarClave(
-      usuarioGuardado.usuario,
-      this.claveActual,
-      this.claveNueva
-    ).subscribe({
-
-      next: (res: any) => {
-        this.mensajeclave = res.mensaje;
-        console.log(this.mensajeclave);
-
-        if (res.mensaje.includes('correctamente')) {
-          this.claveActual = '';
-          this.claveNueva = '';
-          this.claveConfirmar = '';
-          this.modoPassword = false;
-        }
-       
-
-      },
-
-      error: (err) => {
-        console.error(err);
-        this.mensajeclave = 'Error al cambiar contraseña';
-      }
-
-    });
+  // Validaciones con snackbar
+  if (!this.claveActual || !this.claveNueva || !this.claveConfirmar) {
+    this.notificacionSnackbarService.error('Campos incompletos', 'Todos los campos son obligatorios');
+    return;
   }
+
+  if (this.claveNueva !== this.claveConfirmar) {
+    this.notificacionSnackbarService.error('Las contraseñas no coinciden', 'Verifica la nueva contraseña');
+    return;
+  }
+
+  this.perfilService.cambiarClave(usuarioGuardado.usuario, this.claveActual, this.claveNueva).subscribe({
+    next: (res: any) => {
+      if (res.mensaje && res.mensaje.includes('correctamente')) {
+        // Éxito
+        this.notificacionSnackbarService.success('Contraseña actualizada', res.mensaje);
+        
+        // Limpiar campos y cerrar modal
+        this.claveActual = '';
+        this.claveNueva = '';
+        this.claveConfirmar = '';
+        this.modoPassword = false;
+      } else {
+        // Error controlado por backend (ej. contraseña actual incorrecta)
+        this.notificacionSnackbarService.error('Error', res.mensaje || 'No se pudo cambiar la contraseña');
+      }
+    },
+    error: (err) => {
+      this.notificacionSnackbarService.error('Error del servidor', 'Intenta más tarde');
+      console.error(err);
+    }
+  });
+}
+
 
   accionCancelar() {
     // MODO NORMAL → cerrar dialog

@@ -33,7 +33,10 @@ export class RolPermisosService {
     return this.http.put<any>(`${this.apiUrlRoles}/admin/${rolId}`, datos);
   }
 
-  
+  verificarRolExiste(nombre: string): Observable<{ existe: boolean }> {
+    return this.http.get<{ existe: boolean }>(`${this.apiUrlRoles}/admin/existe?nombre=${nombre}`);
+  }
+
   // ----------------------
   // CREAR ROL-------------
   // ----------------------

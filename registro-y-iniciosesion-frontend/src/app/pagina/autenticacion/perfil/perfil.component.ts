@@ -15,6 +15,7 @@ import { PerfilService } from '../../../arquitectura/servicio/autenticacion/perf
 import { PermisosPermisosService } from '../../../arquitectura/servicio/permisos/permisos-permisos.service';
 import { PermisoModuloService } from '../../../arquitectura/servicio/autenticacion/permiso-modulo.service';
 import { Subscription } from 'rxjs';
+import { NotificacionSnackbarService } from '../../../arquitectura/servicio/notificacion/notificacion-snackbar.service';
 
 
 
@@ -45,7 +46,8 @@ export class PerfilComponent {
     private perfilService: PerfilService,
     private permisosxrolPermisosService: PermisosxrolPermisosService,
     private permisosPermisosService: PermisosPermisosService,
-    public permisoModuloService: PermisoModuloService
+    public permisoModuloService: PermisoModuloService,
+    private notificacionSnackbarService: NotificacionSnackbarService
   ) { }
 
   // Método que se ejecuta al cargar el componente
@@ -102,8 +104,12 @@ export class PerfilComponent {
 
 
   cerrarSesion() {
+    const confirmacion = confirm('¿Seguro que quieres cerrar sesión?');
+    if (!confirmacion) return;
     // Llamamos al método del servicio para cerrar sesión
     this.autenticadorService.cerrarSesion();
+    // Mostrar notificación de éxito
+    this.notificacionSnackbarService.success('Sesión cerrada', 'Has cerrado sesión correctamente');
     // limpiar consola o estado
     this.Usuario = null;
     // Redirigir a la página de inicio de sesión
