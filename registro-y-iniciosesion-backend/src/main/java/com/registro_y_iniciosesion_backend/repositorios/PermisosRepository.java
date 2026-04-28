@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 // --------------------------------------------------------
 // Esta interfaz es el repositorio encargado de acceder a la tabla
@@ -48,4 +49,6 @@ public interface PermisosRepository extends JpaRepository<Permisos,Long> {
     // Verificar si un permiso está asociado a algún rol
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Rol r JOIN r.permisos p WHERE p.id = :permisoId")
     boolean existsPermisoEnRol(@Param("permisoId") Long permisoId);
+
+    Optional<Permisos> findByModuloAndAccion(String modulo, String accion);
 }
