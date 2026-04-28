@@ -73,3 +73,13 @@ git clone https://github.com/SSebasthian/registro-y-iniciosesion-FullStack.git
 
 <br><br>
 
+<h2>💡 Opcional: Quitar Repositorio y Conectar Otro</h2>
+<ol>
+  <li>Ir a tu proyecto clonado<pre>cd proyecto raiz 2 carpetas backend y frontend</pre></li>
+  <li>Ver a qué repo está conectado<pre>git remote -v</pre></li>
+  <li>Quitar el repositorio actual<pre>git remote remove origin</pre></li>
+  <li>Crear un repositorio nuevo en GitHub<pre>Entras a GitHub</pre></li>
+  <li>Conectar tu proyecto al nuevo repo<pre>git remote add origin https://github.com/TU-USUARIO/NUEVO-REPO.git</pre></li>
+  <li>Subir tu código<pre>Vincular Visual Studio Code - Codigo Git</pre></li>
+</ol>
+<br><br>
